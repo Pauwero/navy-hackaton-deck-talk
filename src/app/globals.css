@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy-50: #f0f4f8;
+  --color-navy-100: #d9e2ec;
+  --color-navy-200: #bcccdc;
+  --color-navy-300: #9fb3c8;
+  --color-navy-400: #829ab1;
+  --color-navy-500: #627d98;
+  --color-navy-600: #486581;
+  --color-navy-700: #334e68;
+  --color-navy-800: #243b53;
+  --color-navy-900: #102a43;
+  --color-navy-950: #0a1929;
+  --color-accent-400: #4fd1c5;
+  --color-accent-500: #38b2ac;
+  --color-accent-600: #2c9c8f;
+  --color-warning-400: #f6ad55;
+  --color-warning-500: #ed8936;
+  --color-danger-400: #fc8181;
+  --color-danger-500: #f56565;
+  --color-success-400: #68d391;
+  --color-success-500: #48bb78;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--color-navy-950);
+  color: var(--color-navy-100);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-navy-900);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-navy-600);
+  border-radius: 4px;
+}
+
+/* Audio player styling */
+.audio-wave {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.audio-wave span {
+  display: inline-block;
+  width: 3px;
+  background: var(--color-accent-400);
+  border-radius: 2px;
+  animation: wave 1.2s ease-in-out infinite;
+}
+.audio-wave span:nth-child(2) { animation-delay: 0.1s; }
+.audio-wave span:nth-child(3) { animation-delay: 0.2s; }
+.audio-wave span:nth-child(4) { animation-delay: 0.3s; }
+.audio-wave span:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes wave {
+  0%, 100% { height: 8px; }
+  50% { height: 20px; }
+}
