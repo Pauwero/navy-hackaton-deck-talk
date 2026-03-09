@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import NotificationBell from "./NotificationBell";
 
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
@@ -61,9 +62,13 @@ export default function Navigation() {
                   </Link>
                 );
               })}
+              <NotificationBell />
             </div>
 
             {/* Mobile toggle */}
+            <div className="md:hidden flex items-center gap-1">
+              <NotificationBell />
+            </div>
             <button
               className="md:hidden text-navy-500 hover:text-navy-700 p-2 rounded-xl hover:bg-navy-100"
               onClick={() => setMobileOpen(!mobileOpen)}

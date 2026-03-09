@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Building2, ArrowLeft, Star, Globe, Mail, Users, ExternalLink } from "lucide-react";
+import { Building2, ArrowLeft, Star, Globe, Mail, Users, ExternalLink, Target, Sparkles } from "lucide-react";
 import { useStore } from "@/lib/store";
 import AudioSnippet from "@/components/AudioSnippet";
 import MatchCard from "@/components/MatchCard";
@@ -24,6 +24,13 @@ export default function CompanyDetailPage() {
   }
 
   const matches = store.getMatchesFor(company.id);
+  const recommendedChallenges = store.getRecommendedChallenges(company.id);
+  const challengeItems = recommendedChallenges
+    .map((m) => {
+      const chalId = m.source_type === "challenge" ? m.source_id : m.target_id;
+      return { match: m, challenge: store.challenges.find((c) => c.id === chalId) };
+    })
+    .filter((x) => x.challenge);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -122,9 +129,35 @@ export default function CompanyDetailPage() {
         </div>
       </div>
 
+      {/* Recommended Challenges (#11) */}
+      {challengeItems.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-navy-900 mb-4 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-accent-500" />
+            Recommended Challenges for You
+          </h2>
+          <div className="space-y-3">
+            {challengeItems.map(({ match, challenge }) => (
+              <Link key={match.id} href={`/challenges/${challenge!.id}`} className="card p-4 flex items-center gap-4 block">
+                <div className="w-11 h-11 rounded-full avatar-orange flex items-center justify-center text-white shrink-0">
+                  <Target className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-navy-900">{challenge!.title}</p>
+                  <p className="text-xs text-navy-400">{challenge!.domain} | TRL {challenge!.desired_trl} | {match.score}% match</p>
+                </div>
+                <span className={`tag-pill shrink-0 bg-success-500/10 text-success-500 border-success-200`}>
+                  {match.score}%
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       {matches.length > 0 && (
         <div>
-          <h2 className="text-lg font-bold text-navy-900 mb-4">AI Matches</h2>
+          <h2 className="text-lg font-bold text-navy-900 mb-4">All AI Matches</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {matches.slice(0, 6).map((match) => (
               <MatchCard key={match.id} match={match} />

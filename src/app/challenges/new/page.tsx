@@ -74,7 +74,8 @@ export default function NewChallengePage() {
     };
 
     store.addChallenge(challenge);
-    router.push("/challenges");
+    store.runMatchmaking();
+    router.push(`/challenges/${challenge.id}`);
   };
 
   const inputClass = "w-full bg-white border border-navy-200 rounded-xl px-3.5 py-2.5 text-sm text-navy-700 placeholder-navy-300 focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 transition-all";

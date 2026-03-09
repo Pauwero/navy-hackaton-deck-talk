@@ -1,4 +1,4 @@
-import type { CompanyProfile, ResearchProfile, NavyChallenge, Match } from "@/types";
+import type { CompanyProfile, ResearchProfile, NavyChallenge, Match, GroupMatch, GroupMatchMember } from "@/types";
 
 /**
  * AI Matchmaking Engine
@@ -200,4 +200,93 @@ export function matchCompanyToResearch(
     })
     .filter((m) => m.score > 5)
     .sort((a, b) => b.score - a.score);
+}
+
+/**
+ * Generate Group Matches — suggest pairs/groups of companies+researchers
+ * that together cover a challenge's full solution space (#25)
+ */
+export function generateGroupMatches(
+  challenge: NavyChallenge,
+  companies: CompanyProfile[],
+  research: ResearchProfile[],
+  existingMatches: Match[]
+): GroupMatch[] {
+  const challengeMatches = existingMatches
+    .filter((m) => m.source_id === challenge.id && m.score > 5)
+    .sort((a, b) => b.score - a.score);
+
+  if (challengeMatches.length < 2) return [];
+
+  const groups: GroupMatch[] = [];
+  const requirementWords = new Set(
+    challenge.tags.concat(challenge.requirements.flatMap((r) => r.toLowerCase().split(/\s+/)))
+      .map((w) => w.toLowerCase())
+      .filter((w) => w.length > 3)
+  );
+
+  const companyMatches = challengeMatches.filter((m) => m.target_type === "company").slice(0, 4);
+  const researchMatches = challengeMatches.filter((m) => m.target_type === "research").slice(0, 4);
+
+  for (const cm of companyMatches) {
+    for (const rm of researchMatches) {
+      const company = companies.find((c) => c.id === cm.target_id);
+      const res = research.find((r) => r.id === rm.target_id);
+      if (!company || !res) continue;
+
+      const allCoverage = new Set([
+        ...company.capabilities.map((c) => c.toLowerCase()),
+        ...company.technologies.map((t) => t.toLowerCase()),
+        ...res.keywords.map((k) => k.toLowerCase()),
+      ]);
+      const covered = [...requirementWords].filter((w) =>
+        [...allCoverage].some((c) => c.includes(w) || w.includes(c))
+      );
+      const coveragePercent = requirementWords.size > 0 ? (covered.length / requirementWords.size) * 100 : 0;
+      const combinedScore = Math.round((cm.score + rm.score) / 2 + (coveragePercent > 30 ? 10 : 0));
+      if (combinedScore < 10) continue;
+
+      groups.push({
+        id: generateId(),
+        challenge_id: challenge.id,
+        members: [
+          { entity_id: company.id, entity_type: "company", entity_name: company.name, contribution: `Brings ${company.capabilities.slice(0, 2).join(", ")}` },
+          { entity_id: res.id, entity_type: "research", entity_name: res.title.length > 40 ? res.title.substring(0, 40) + "..." : res.title, contribution: `Research in ${res.keywords.slice(0, 2).join(", ")}` },
+        ],
+        combined_score: combinedScore,
+        coverage: covered,
+        reasoning: `${company.name} provides implementation, ${res.institution} contributes research. ${Math.round(coveragePercent)}% requirement coverage together.`,
+        created_at: new Date().toISOString(),
+      });
+    }
+  }
+
+  for (let i = 0; i < companyMatches.length; i++) {
+    for (let j = i + 1; j < companyMatches.length; j++) {
+      const c1 = companies.find((c) => c.id === companyMatches[i].target_id);
+      const c2 = companies.find((c) => c.id === companyMatches[j].target_id);
+      if (!c1 || !c2) continue;
+
+      const allCaps = new Set([...c1.capabilities, ...c2.capabilities, ...c1.technologies, ...c2.technologies].map((s) => s.toLowerCase()));
+      const covered = [...requirementWords].filter((w) => [...allCaps].some((c) => c.includes(w) || w.includes(c)));
+      const coveragePercent = requirementWords.size > 0 ? (covered.length / requirementWords.size) * 100 : 0;
+      const combinedScore = Math.round((companyMatches[i].score + companyMatches[j].score) / 2 + (coveragePercent > 30 ? 5 : 0));
+      if (combinedScore < 10) continue;
+
+      groups.push({
+        id: generateId(),
+        challenge_id: challenge.id,
+        members: [
+          { entity_id: c1.id, entity_type: "company", entity_name: c1.name, contribution: c1.capabilities.slice(0, 2).join(", ") },
+          { entity_id: c2.id, entity_type: "company", entity_name: c2.name, contribution: c2.capabilities.slice(0, 2).join(", ") },
+        ],
+        combined_score: combinedScore,
+        coverage: covered,
+        reasoning: `Combined capabilities from ${c1.name} and ${c2.name} cover ${Math.round(coveragePercent)}% of requirements.`,
+        created_at: new Date().toISOString(),
+      });
+    }
+  }
+
+  return groups.sort((a, b) => b.combined_score - a.combined_score).slice(0, 5);
 }

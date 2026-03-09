@@ -26,34 +26,11 @@ export default function DashboardPage() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // AI-ranked search (#26) — results scored by relevance instead of simple substring match
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return null;
-    const q = searchQuery.toLowerCase();
-
-    const companies = store.companies.filter(
-      (c) =>
-        c.name.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q) ||
-        c.capabilities.some((cap) => cap.toLowerCase().includes(q)) ||
-        c.technologies.some((t) => t.toLowerCase().includes(q))
-    );
-
-    const research = store.research.filter(
-      (r) =>
-        r.title.toLowerCase().includes(q) ||
-        r.description.toLowerCase().includes(q) ||
-        r.keywords.some((kw) => kw.toLowerCase().includes(q))
-    );
-
-    const challenges = store.challenges.filter(
-      (c) =>
-        c.title.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q) ||
-        c.tags.some((t) => t.toLowerCase().includes(q))
-    );
-
-    return { companies, research, challenges };
-  }, [searchQuery, store.companies, store.research, store.challenges]);
+    return store.searchWithRelevance(searchQuery);
+  }, [searchQuery, store]);
 
   const topMatches = store.matches.slice(0, 6);
 

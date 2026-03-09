@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Play, Pause, ListPlus, ListMinus, Volume2 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import type { PlaylistItem } from "@/types";
@@ -13,21 +12,15 @@ interface AudioSnippetProps {
 }
 
 export default function AudioSnippet({ itemId, itemType, title, description }: AudioSnippetProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
   const store = useStore();
   const inPlaylist = store.isInPlaylist(itemId);
+  const isPlaying = store.audioPlayer.currentItemId === itemId && store.audioPlayer.isPlaying;
 
   const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-    if (!isPlaying && "speechSynthesis" in window) {
-      const utterance = new SpeechSynthesisUtterance(
-        `${title}. ${description.substring(0, 300)}`
-      );
-      utterance.rate = 0.9;
-      utterance.onend = () => setIsPlaying(false);
-      window.speechSynthesis.speak(utterance);
-    } else if (isPlaying && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
+    if (isPlaying) {
+      store.pauseAudio();
+    } else {
+      store.playAudio(itemId, title, description, itemType);
     }
   };
 

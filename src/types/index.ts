@@ -90,3 +90,50 @@ export interface QualityIssue {
   severity: "error" | "warning" | "info";
   message: string;
 }
+
+// --- New types for missing features ---
+
+export interface Notification {
+  id: string;
+  type: "match_found" | "interest_received" | "new_challenge" | "profile_matched";
+  title: string;
+  message: string;
+  link?: string;
+  read: boolean;
+  created_at: string;
+}
+
+export interface Interest {
+  id: string;
+  challenge_id: string;
+  entity_id: string;
+  entity_type: "company" | "research";
+  entity_name: string;
+  message?: string;
+  created_at: string;
+}
+
+export interface GroupMatch {
+  id: string;
+  challenge_id: string;
+  members: GroupMatchMember[];
+  combined_score: number;
+  coverage: string[];
+  reasoning: string;
+  created_at: string;
+}
+
+export interface GroupMatchMember {
+  entity_id: string;
+  entity_type: "company" | "research";
+  entity_name: string;
+  contribution: string;
+}
+
+export interface AudioPlayerState {
+  isPlaying: boolean;
+  currentItemId: string | null;
+  currentTitle: string;
+  currentDescription: string;
+  currentType: "company" | "research" | "challenge";
+}
