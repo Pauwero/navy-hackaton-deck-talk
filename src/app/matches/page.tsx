@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Zap, RefreshCw, Filter } from "lucide-react";
+import { RefreshCw, Heart, Sparkles } from "lucide-react";
 import { useStore } from "@/lib/store";
 import MatchCard from "@/components/MatchCard";
 
@@ -12,7 +12,6 @@ export default function MatchesPage() {
   const [filter, setFilter] = useState<MatchFilter>("all");
   const [isRunning, setIsRunning] = useState(false);
 
-  // Run matchmaking on first load if no matches exist
   useEffect(() => {
     if (store.matches.length === 0) {
       store.runMatchmaking();
@@ -41,35 +40,39 @@ export default function MatchesPage() {
 
   return (
     <div>
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Zap className="w-7 h-7 text-accent-400" />
-            AI Matchmaking
-          </h1>
-          <p className="text-sm text-navy-400 mt-1">{filteredMatches.length} matches found</p>
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-10 h-10 rounded-xl bg-accent-500/10 flex items-center justify-center">
+              <Heart className="w-5 h-5 text-heart" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-navy-900">AI Matchmaking</h1>
+              <p className="text-sm text-navy-400">{filteredMatches.length} matches found</p>
+            </div>
+          </div>
         </div>
         <button
           onClick={handleRunMatchmaking}
           disabled={isRunning}
-          className="flex items-center gap-1.5 bg-accent-500 hover:bg-accent-600 disabled:bg-navy-700 text-navy-950 disabled:text-navy-400 font-semibold px-4 py-2 rounded-lg text-sm transition-colors"
+          className="flex items-center gap-1.5 bg-accent-500 hover:bg-accent-600 disabled:bg-navy-200 text-white disabled:text-navy-400 font-semibold px-5 py-2.5 rounded-full text-sm transition-all shadow-sm hover:shadow-md"
         >
           <RefreshCw className={`w-4 h-4 ${isRunning ? "animate-spin" : ""}`} />
-          {isRunning ? "Running..." : "Run Matchmaking"}
+          {isRunning ? "Finding..." : "Find Matches"}
         </button>
       </div>
 
-      {/* Filter */}
+      {/* Filter pills */}
       <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
-        <Filter className="w-4 h-4 text-navy-400 shrink-0" />
         {filterOptions.map((opt) => (
           <button
             key={opt.value}
             onClick={() => setFilter(opt.value)}
-            className={`px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors ${
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
               filter === opt.value
-                ? "bg-accent-500/20 text-accent-400 border border-accent-500/30"
-                : "bg-navy-800 text-navy-400 hover:text-navy-200"
+                ? "bg-accent-500 text-white shadow-sm"
+                : "bg-white text-navy-500 border border-navy-200 hover:border-accent-300 hover:text-accent-500"
             }`}
           >
             {opt.label}
@@ -78,12 +81,13 @@ export default function MatchesPage() {
       </div>
 
       {filteredMatches.length === 0 ? (
-        <div className="text-center py-16">
-          <Zap className="w-12 h-12 text-navy-600 mx-auto mb-3" />
-          <p className="text-navy-400">No matches yet. Click &quot;Run Matchmaking&quot; to start.</p>
+        <div className="card p-16 text-center">
+          <Sparkles className="w-12 h-12 text-navy-200 mx-auto mb-3" />
+          <p className="text-navy-500 font-medium mb-1">No matches yet</p>
+          <p className="text-navy-400 text-sm">Click &quot;Find Matches&quot; to discover connections.</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredMatches.slice(0, 30).map((match) => (
             <MatchCard key={match.id} match={match} />
           ))}

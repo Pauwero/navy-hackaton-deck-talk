@@ -19,7 +19,6 @@ export default function AudioSnippet({ itemId, itemType, title, description }: A
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
-    // In production, this would use Web Speech API or pre-generated audio
     if (!isPlaying && "speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(
         `${title}. ${description.substring(0, 300)}`
@@ -52,16 +51,16 @@ export default function AudioSnippet({ itemId, itemType, title, description }: A
     <div className="flex items-center gap-2">
       <button
         onClick={togglePlay}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
           isPlaying
-            ? "bg-accent-500 text-navy-950"
-            : "bg-navy-700 text-navy-200 hover:bg-navy-600"
+            ? "bg-accent-500 text-white shadow-sm"
+            : "bg-navy-100 text-navy-500 hover:bg-navy-200"
         }`}
       >
-        {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+        {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
         {isPlaying ? (
           <span className="flex items-center gap-0.5">
-            <Volume2 className="w-3.5 h-3.5" />
+            <Volume2 className="w-3 h-3" />
             Playing
           </span>
         ) : (
@@ -71,15 +70,15 @@ export default function AudioSnippet({ itemId, itemType, title, description }: A
 
       <button
         onClick={togglePlaylist}
-        className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm transition-colors ${
+        className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-all ${
           inPlaylist
-            ? "bg-accent-500/20 text-accent-400 border border-accent-500/30"
-            : "bg-navy-700 text-navy-300 hover:bg-navy-600"
+            ? "bg-accent-500/10 text-accent-500 border border-accent-300"
+            : "bg-navy-100 text-navy-400 hover:bg-navy-200"
         }`}
         title={inPlaylist ? "Remove from playlist" : "Add to playlist"}
       >
-        {inPlaylist ? <ListMinus className="w-3.5 h-3.5" /> : <ListPlus className="w-3.5 h-3.5" />}
-        {inPlaylist ? "In Playlist" : "Add"}
+        {inPlaylist ? <ListMinus className="w-3 h-3" /> : <ListPlus className="w-3 h-3" />}
+        {inPlaylist ? "Added" : "Add"}
       </button>
     </div>
   );

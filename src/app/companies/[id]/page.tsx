@@ -14,9 +14,9 @@ export default function CompanyDetailPage() {
 
   if (!company) {
     return (
-      <div className="text-center py-16">
-        <p className="text-navy-400">Company not found.</p>
-        <Link href="/companies" className="text-accent-400 hover:underline mt-2 inline-block">
+      <div className="card p-16 text-center max-w-md mx-auto">
+        <p className="text-navy-500">Company not found.</p>
+        <Link href="/companies" className="text-accent-500 hover:underline mt-2 inline-block text-sm">
           Back to Companies
         </Link>
       </div>
@@ -27,78 +27,74 @@ export default function CompanyDetailPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Link href="/companies" className="flex items-center gap-1 text-navy-400 hover:text-navy-200 text-sm mb-4">
+      <Link href="/companies" className="flex items-center gap-1 text-navy-400 hover:text-accent-500 text-sm mb-4 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to Companies
       </Link>
 
-      <div className="bg-navy-800 rounded-2xl p-6 border border-navy-700 mb-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-xl bg-blue-500/20 flex items-center justify-center">
-              <Building2 className="w-7 h-7 text-blue-400" />
+      <div className="card p-6 mb-6">
+        <div className="flex items-start justify-between mb-5">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl avatar-blue flex items-center justify-center text-lg font-bold text-white">
+              {company.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">{company.name}</h1>
-              <p className="text-accent-400">{company.sector}</p>
+              <h1 className="text-2xl font-bold text-navy-900">{company.name}</h1>
+              <p className="text-accent-500 font-medium">{company.sector}</p>
             </div>
           </div>
-          <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 text-warning-400" />
-            <span className="text-sm text-navy-300">Quality: {company.quality_score}/100</span>
+          <div className="flex items-center gap-1.5 bg-warning-500/10 px-3 py-1.5 rounded-full">
+            <Star className="w-4 h-4 text-warning-500" />
+            <span className="text-sm text-warning-500 font-semibold">{company.quality_score}/100</span>
           </div>
         </div>
 
-        <p className="text-navy-200 mb-4">{company.description}</p>
+        <p className="text-navy-600 mb-5 leading-relaxed">{company.description}</p>
 
-        <div className="grid md:grid-cols-2 gap-4 mb-4">
+        <div className="grid md:grid-cols-2 gap-5 mb-5">
           <div>
-            <h3 className="text-sm font-semibold text-navy-400 mb-2">Capabilities</h3>
+            <h3 className="text-xs font-semibold text-navy-400 uppercase tracking-wide mb-2">Capabilities</h3>
             <div className="flex flex-wrap gap-1.5">
               {company.capabilities.map((cap) => (
-                <span key={cap} className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded">
-                  {cap}
-                </span>
+                <span key={cap} className="tag-pill border-blue-200 text-blue-600 bg-blue-50">{cap}</span>
               ))}
             </div>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-navy-400 mb-2">Technologies</h3>
+            <h3 className="text-xs font-semibold text-navy-400 uppercase tracking-wide mb-2">Technologies</h3>
             <div className="flex flex-wrap gap-1.5">
               {company.technologies.map((tech) => (
-                <span key={tech} className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded">
-                  {tech}
-                </span>
+                <span key={tech} className="tag-pill border-purple-200 text-purple-600 bg-purple-50">{tech}</span>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4 mb-4">
-          <div className="bg-navy-900 rounded-lg p-3">
-            <p className="text-xs text-navy-400">TRL Level</p>
-            <p className="text-lg font-bold text-white">{company.trl_level}/9</p>
+        <div className="grid md:grid-cols-3 gap-3 mb-5">
+          <div className="bg-navy-50 rounded-xl p-4">
+            <p className="text-xs text-navy-400 font-medium">TRL Level</p>
+            <p className="text-xl font-bold text-navy-900">{company.trl_level}/9</p>
           </div>
-          <div className="bg-navy-900 rounded-lg p-3">
-            <p className="text-xs text-navy-400">Team Size</p>
-            <p className="text-lg font-bold text-white flex items-center gap-1">
+          <div className="bg-navy-50 rounded-xl p-4">
+            <p className="text-xs text-navy-400 font-medium">Team Size</p>
+            <p className="text-lg font-bold text-navy-900 flex items-center gap-1.5">
               <Users className="w-4 h-4 text-navy-400" /> {company.team_size}
             </p>
           </div>
-          <div className="bg-navy-900 rounded-lg p-3">
-            <p className="text-xs text-navy-400">Contact</p>
-            <p className="text-sm text-accent-400 flex items-center gap-1 truncate">
+          <div className="bg-navy-50 rounded-xl p-4">
+            <p className="text-xs text-navy-400 font-medium">Contact</p>
+            <p className="text-sm text-accent-500 flex items-center gap-1 truncate">
               <Mail className="w-3.5 h-3.5" /> {company.contact_email}
             </p>
           </div>
         </div>
 
         {company.use_cases.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-sm font-semibold text-navy-400 mb-2">Use Cases</h3>
-            <ul className="space-y-1">
+          <div className="mb-5">
+            <h3 className="text-xs font-semibold text-navy-400 uppercase tracking-wide mb-2">Use Cases</h3>
+            <ul className="space-y-1.5">
               {company.use_cases.map((uc) => (
-                <li key={uc} className="text-sm text-navy-300 flex gap-2">
-                  <span className="text-accent-400">•</span> {uc}
+                <li key={uc} className="text-sm text-navy-600 flex gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-500 mt-1.5 shrink-0" /> {uc}
                 </li>
               ))}
             </ul>
@@ -110,13 +106,13 @@ export default function CompanyDetailPage() {
             href={company.website}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-sm text-accent-400 hover:underline"
+            className="inline-flex items-center gap-1.5 text-sm text-accent-500 hover:underline"
           >
             <Globe className="w-3.5 h-3.5" /> Website <ExternalLink className="w-3 h-3" />
           </a>
         )}
 
-        <div className="border-t border-navy-700 pt-4 mt-4">
+        <div className="border-t border-navy-100 pt-4 mt-4">
           <AudioSnippet
             itemId={company.id}
             itemType="company"
@@ -128,8 +124,8 @@ export default function CompanyDetailPage() {
 
       {matches.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold text-white mb-3">AI Matches</h2>
-          <div className="grid md:grid-cols-2 gap-3">
+          <h2 className="text-lg font-bold text-navy-900 mb-4">AI Matches</h2>
+          <div className="grid md:grid-cols-2 gap-4">
             {matches.slice(0, 6).map((match) => (
               <MatchCard key={match.id} match={match} />
             ))}
