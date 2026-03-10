@@ -157,7 +157,16 @@ export function useStore() {
         newMatches.push(...matchCompanyToResearch(company, _research));
       }
 
-      _matches = newMatches.sort((a, b) => b.score - a.score);
+      // Deduplicate: keep highest-scoring match per unique source-target-type combo
+      const seen = new Map<string, Match>();
+      for (const m of newMatches) {
+        const key = [m.source_id, m.target_id].sort().join("|") + "|" + m.match_type;
+        const existing = seen.get(key);
+        if (!existing || m.score > existing.score) {
+          seen.set(key, m);
+        }
+      }
+      _matches = Array.from(seen.values()).sort((a, b) => b.score - a.score);
 
       _groupMatches = [];
       for (const challenge of _challenges) {
