@@ -28,6 +28,7 @@ import {
   Calendar,
   Users,
 } from "lucide-react";
+import AiAssistant from "@/components/AiAssistant";
 
 // Pipeline stages in order
 const PIPELINE_STEPS: { key: ProposalStatus; label: string; icon: typeof FileCheck }[] = [
@@ -688,6 +689,28 @@ export default function ProposalDetailPage() {
               </Link>
             </div>
           </div>
+
+          {/* AI Analysis */}
+          <AiAssistant
+            inline
+            agentType="analyze"
+            title="AI Analysis"
+            placeholder="Ask AI to analyze this proposal..."
+            context={{
+              proposal: {
+                title: proposal.title,
+                description: proposal.description,
+                domain: proposal.domain,
+                status: proposal.status,
+                submitter_org: proposal.submitter_org,
+                votes: proposal.votes.length,
+                interest_rate: interestRatio,
+                assessment: proposal.assessment || null,
+                professor_review: proposal.professor_review || null,
+              },
+            }}
+            initialMessage=""
+          />
         </div>
       </div>
     </div>

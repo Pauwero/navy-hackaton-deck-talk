@@ -13,6 +13,10 @@ import {
   Filter,
   ChevronRight,
   User,
+  ClipboardCheck,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import MatchCard from "@/components/MatchCard";
@@ -20,7 +24,7 @@ import MatchCard from "@/components/MatchCard";
 export default function DashboardPage() {
   const store = useStore();
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"matches" | "companies" | "research">("matches");
+  const [activeTab, setActiveTab] = useState<"matches" | "companies" | "research" | "challenges" | "proposals">("matches");
   const [domainFilter, setDomainFilter] = useState<string>("");
 
   useEffect(() => {
@@ -36,6 +40,7 @@ export default function DashboardPage() {
 
   const profileMatches = store.getProfileMatches();
   const { userProfile } = store;
+  const proposalStats = store.getProposalStats();
 
   // Filtered companies/research for browse tabs
   const filteredCompanies = useMemo(() => {
@@ -68,7 +73,60 @@ export default function DashboardPage() {
     return items;
   }, [store, searchQuery, domainFilter]);
 
+  const filteredChallenges = useMemo(() => {
+    let items = store.challenges;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      items = items.filter((c) =>
+        c.title.toLowerCase().includes(q) ||
+        c.description.toLowerCase().includes(q) ||
+        c.domain.toLowerCase().includes(q) ||
+        c.tags.some((t) => t.toLowerCase().includes(q))
+      );
+    }
+    if (domainFilter) {
+      items = items.filter((c) =>
+        c.domain.toLowerCase().includes(domainFilter.toLowerCase())
+      );
+    }
+    return items;
+  }, [store, searchQuery, domainFilter]);
+
+  const filteredProposals = useMemo(() => {
+    let items = store.proposals;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      items = items.filter((p) =>
+        p.title.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.domain.toLowerCase().includes(q)
+      );
+    }
+    return items;
+  }, [store, searchQuery]);
+
   const domains = ["Autonomous Systems", "Cybersecurity", "Data Analytics", "Energy", "Materials"];
+
+  const priorityColor: Record<string, string> = {
+    critical: "bg-red-100 text-red-700",
+    high: "bg-orange-100 text-orange-700",
+    medium: "bg-blue-100 text-blue-700",
+    low: "bg-navy-100 text-navy-600",
+  };
+
+  const statusColor: Record<string, string> = {
+    open: "bg-emerald-100 text-emerald-700",
+    in_review: "bg-blue-100 text-blue-700",
+    matched: "bg-purple-100 text-purple-700",
+    closed: "bg-navy-100 text-navy-600",
+  };
+
+  const proposalStatusColor = (status: string) => {
+    if (status === "approved" || status === "enrolled") return "bg-emerald-100 text-emerald-700";
+    if (status === "rejected") return "bg-red-100 text-red-700";
+    if (status === "discussion") return "bg-orange-100 text-orange-700";
+    return "bg-blue-100 text-blue-700";
+  };
 
   return (
     <div>
@@ -108,7 +166,7 @@ export default function DashboardPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search companies, research, challenges..."
+            placeholder="Search companies, research, challenges, proposals..."
             className="w-full bg-white border border-navy-200 rounded-lg pl-10 pr-4 py-2.5 text-sm text-navy-800 placeholder-navy-400 focus:outline-none focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 transition-all"
           />
         </div>
@@ -128,9 +186,11 @@ export default function DashboardPage() {
       </div>
 
       {/* Tab navigation */}
-      <div className="flex items-center gap-1 mb-6 border-b border-navy-100">
+      <div className="flex items-center gap-1 mb-6 border-b border-navy-100 overflow-x-auto">
         {[
           { key: "matches" as const, label: "Your Matches", icon: TrendingUp, count: profileMatches.length },
+          { key: "challenges" as const, label: "Challenges", icon: Target, count: filteredChallenges.length },
+          { key: "proposals" as const, label: "Proposals", icon: ClipboardCheck, count: filteredProposals.length },
           { key: "companies" as const, label: "Companies", icon: Building2, count: filteredCompanies.length },
           { key: "research" as const, label: "Research", icon: FlaskConical, count: filteredResearch.length },
         ].map((tab) => {
@@ -139,7 +199,7 @@ export default function DashboardPage() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === tab.key
                   ? "border-accent-500 text-accent-500"
                   : "border-transparent text-navy-500 hover:text-navy-700"
@@ -181,10 +241,14 @@ export default function DashboardPage() {
           )}
 
           {/* Quick stats */}
-          <div className="grid grid-cols-3 gap-3 mt-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
             <div className="card p-4 text-center">
               <p className="text-2xl font-bold text-navy-900">{store.challenges.filter((c) => c.status === "open").length}</p>
               <p className="text-xs text-navy-500 mt-1">Open Challenges</p>
+            </div>
+            <div className="card p-4 text-center">
+              <p className="text-2xl font-bold text-navy-900">{proposalStats.total}</p>
+              <p className="text-xs text-navy-500 mt-1">Proposals</p>
             </div>
             <div className="card p-4 text-center">
               <p className="text-2xl font-bold text-navy-900">{store.companies.length}</p>
@@ -194,6 +258,127 @@ export default function DashboardPage() {
               <p className="text-2xl font-bold text-navy-900">{store.research.length}</p>
               <p className="text-xs text-navy-500 mt-1">Research Projects</p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "challenges" && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-navy-700">Active Naval Challenges</h2>
+            <Link href="/create-challenge" className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1">
+              <Target className="w-3.5 h-3.5" /> New Challenge
+            </Link>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredChallenges.map((challenge) => {
+              const proposalCount = store.getProposalsForChallenge(challenge.id).length;
+              return (
+                <Link key={challenge.id} href={`/challenges/${challenge.id}`} className="card p-4 block group">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-[0.6rem] font-bold uppercase px-1.5 py-0.5 rounded ${priorityColor[challenge.priority]}`}>
+                      {challenge.priority}
+                    </span>
+                    <span className={`text-[0.6rem] font-medium px-1.5 py-0.5 rounded ${statusColor[challenge.status]}`}>
+                      {challenge.status.replace("_", " ")}
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-navy-900 text-sm group-hover:text-accent-500 transition-colors mb-1 line-clamp-2">
+                    {challenge.title}
+                  </h3>
+                  <p className="text-xs text-navy-500 line-clamp-2 mb-3">{challenge.description}</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap gap-1">
+                      <span className="text-[0.6rem] text-navy-500 bg-navy-50 px-1.5 py-0.5 rounded">{challenge.domain}</span>
+                      <span className="text-[0.6rem] text-navy-400 bg-navy-50 px-1.5 py-0.5 rounded">TRL {challenge.desired_trl}</span>
+                    </div>
+                    {proposalCount > 0 && (
+                      <span className="text-[0.6rem] font-medium text-accent-600 bg-accent-500/10 px-1.5 py-0.5 rounded">
+                        {proposalCount} proposal{proposalCount !== 1 ? "s" : ""}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+            {filteredChallenges.length === 0 && (
+              <div className="col-span-full card p-8 text-center">
+                <p className="text-navy-400 text-sm">No challenges match your search criteria.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {activeTab === "proposals" && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-navy-700">Proposal Pipeline</h2>
+            <Link href="/proposals" className="text-accent-500 text-sm font-medium flex items-center gap-1 hover:gap-1.5 transition-all">
+              Full View <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Pipeline stats */}
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-4">
+            {[
+              { label: "In Voting", count: proposalStats.byStatus["voting"] || 0, color: "text-blue-600" },
+              { label: "Assessment", count: proposalStats.byStatus["sniff_assessment"] || 0, color: "text-amber-600" },
+              { label: "Approved", count: proposalStats.byStatus["approved"] || 0, color: "text-emerald-600" },
+              { label: "Discussion", count: proposalStats.byStatus["discussion"] || 0, color: "text-orange-600" },
+              { label: "Enrolled", count: proposalStats.byStatus["enrolled"] || 0, color: "text-emerald-700" },
+            ].map((s) => (
+              <div key={s.label} className="card p-3 text-center">
+                <p className={`text-xl font-bold ${s.color}`}>{s.count}</p>
+                <p className="text-[0.6rem] text-navy-500 mt-0.5">{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-3">
+            {filteredProposals.map((proposal) => (
+              <Link key={proposal.id} href={`/proposals/${proposal.id}`} className="card p-4 block group">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                    proposal.status === "approved" || proposal.status === "enrolled" ? "bg-emerald-100" :
+                    proposal.status === "rejected" ? "bg-red-100" :
+                    proposal.status === "discussion" ? "bg-orange-100" :
+                    "bg-blue-100"
+                  }`}>
+                    {proposal.status === "approved" || proposal.status === "enrolled" ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> :
+                     proposal.status === "rejected" ? <XCircle className="w-4 h-4 text-red-600" /> :
+                     proposal.status === "discussion" ? <AlertTriangle className="w-4 h-4 text-orange-600" /> :
+                     <ClipboardCheck className="w-4 h-4 text-blue-600" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-sm font-semibold text-navy-900 group-hover:text-accent-500 transition-colors truncate">
+                        {proposal.title}
+                      </h3>
+                      <span className={`text-[0.6rem] font-medium px-1.5 py-0.5 rounded ${proposalStatusColor(proposal.status)}`}>
+                        {proposal.status.replace(/_/g, " ")}
+                      </span>
+                      {proposal.assessment && (
+                        <span className={`text-[0.6rem] font-bold px-1.5 py-0.5 rounded ${
+                          proposal.assessment.total_score >= 75 ? "bg-emerald-50 text-emerald-600" :
+                          proposal.assessment.total_score >= 65 ? "bg-orange-50 text-orange-600" :
+                          "bg-red-50 text-red-600"
+                        }`}>
+                          {proposal.assessment.total_score}%
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-navy-500">{proposal.submitter_org} · {proposal.domain} · {proposal.votes.length} votes</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-navy-300 shrink-0" />
+                </div>
+              </Link>
+            ))}
+            {filteredProposals.length === 0 && (
+              <div className="card p-8 text-center">
+                <p className="text-navy-400 text-sm">No proposals match your search criteria.</p>
+              </div>
+            )}
           </div>
         </div>
       )}

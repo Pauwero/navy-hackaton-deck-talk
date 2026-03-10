@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import AiAssistant from "./AiAssistant";
 
 export default function MainContent({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -22,6 +23,7 @@ export default function MainContent({ children }: { children: React.ReactNode })
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-8">
         {children}
       </div>
+      <AiAssistant />
     </main>
   );
 }
