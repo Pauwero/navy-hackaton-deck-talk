@@ -4,9 +4,10 @@ import { useState, useCallback } from "react";
 import type {
   CompanyProfile, ResearchProfile, NavyChallenge,
   PlaylistItem, Match, Notification, Interest, GroupMatch, AudioPlayerState,
-  UserProfile,
+  UserProfile, Proposal, ProposalVote, SniffAssessment, ProposalStatus,
 } from "@/types";
 import { sampleCompanies, sampleResearch, sampleChallenges } from "./sample-data";
+import { sampleProposals } from "./sample-proposals";
 import {
   matchChallengeToCompanies,
   matchChallengeToResearch,
@@ -31,6 +32,7 @@ let _audioPlayer: AudioPlayerState = {
   currentDescription: "",
   currentType: "company",
 };
+let _proposals: Proposal[] = [...sampleProposals];
 let _userProfile: UserProfile = {
   id: "user-1",
   name: "Commander A. de Vries",
@@ -89,6 +91,7 @@ export function useStore() {
     groupMatches: _groupMatches,
     audioPlayer: _audioPlayer,
     userProfile: _userProfile,
+    proposals: _proposals,
 
     updateUserProfile(updates: Partial<UserProfile>) {
       _userProfile = { ..._userProfile, ...updates };
@@ -323,6 +326,92 @@ export function useStore() {
         currentType: "company",
       };
       notify();
+    },
+
+    // --- Proposal Assessment Pipeline ---
+
+    addProposal(p: Proposal) {
+      _proposals = [p, ..._proposals];
+      addNotification({
+        type: "new_challenge",
+        title: "New Proposal Submitted",
+        message: `"${p.title}" by ${p.submitter_name} is now open for voting.`,
+        link: `/proposals/${p.id}`,
+      });
+      notify();
+    },
+
+    getProposal(id: string) {
+      return _proposals.find((p) => p.id === id);
+    },
+
+    updateProposalStatus(id: string, status: ProposalStatus) {
+      _proposals = _proposals.map((p) =>
+        p.id === id ? { ...p, status, updated_at: new Date().toISOString() } : p
+      );
+      notify();
+    },
+
+    addVote(proposalId: string, vote: Omit<ProposalVote, "id" | "created_at">) {
+      _proposals = _proposals.map((p) => {
+        if (p.id !== proposalId) return p;
+        if (p.votes.some((v) => v.voter_name === vote.voter_name)) return p;
+        return {
+          ...p,
+          votes: [...p.votes, { ...vote, id: generateId(), created_at: new Date().toISOString() }],
+          updated_at: new Date().toISOString(),
+        };
+      });
+      notify();
+    },
+
+    submitAssessment(proposalId: string, assessment: Omit<SniffAssessment, "total_score" | "created_at">) {
+      const total = Math.round(
+        (assessment.strategic_fit * 0.3 +
+         assessment.unmet_need * 0.3 +
+         assessment.feasibility * 0.2 +
+         assessment.innovative * 0.2)
+      );
+      const full: SniffAssessment = {
+        ...assessment,
+        total_score: total,
+        created_at: new Date().toISOString(),
+      };
+
+      let newStatus: ProposalStatus = "rejected";
+      if (total >= 75) newStatus = "approved";
+      else if (total >= 65) newStatus = "discussion";
+
+      _proposals = _proposals.map((p) =>
+        p.id === proposalId
+          ? { ...p, assessment: full, status: newStatus, updated_at: new Date().toISOString() }
+          : p
+      );
+
+      addNotification({
+        type: "match_found",
+        title: "Assessment Complete",
+        message: `Proposal scored ${total}% — ${newStatus === "approved" ? "Auto-approved" : newStatus === "discussion" ? "Sent for discussion" : "Not eligible"}.`,
+        link: `/proposals/${proposalId}`,
+      });
+      notify();
+    },
+
+    getProposalsByStatus(status: ProposalStatus) {
+      return _proposals.filter((p) => p.status === status);
+    },
+
+    getProposalStats() {
+      const total = _proposals.length;
+      const byStatus = _proposals.reduce((acc, p) => {
+        acc[p.status] = (acc[p.status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      const avgScore = _proposals
+        .filter((p) => p.assessment)
+        .reduce((sum, p) => sum + (p.assessment?.total_score || 0), 0) /
+        (_proposals.filter((p) => p.assessment).length || 1);
+      return { total, byStatus, avgScore: Math.round(avgScore) };
     },
 
     searchWithRelevance(query: string) {

@@ -18,6 +18,7 @@ import {
   Settings,
   ChevronsLeft,
   ChevronsRight,
+  ClipboardCheck,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import NotificationBell from "./NotificationBell";
@@ -28,6 +29,7 @@ const mainNav = [
   { href: "/companies", label: "Companies", icon: Building2 },
   { href: "/research", label: "Research", icon: FlaskConical },
   { href: "/matches", label: "Matches", icon: Zap },
+  { href: "/proposals", label: "Proposals", icon: ClipboardCheck },
 ];
 
 const actionNav = [

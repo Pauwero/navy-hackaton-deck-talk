@@ -172,3 +172,66 @@ export interface OnboardingMessage {
   type: "text" | "question" | "validation" | "approval" | "file-upload";
   timestamp: string;
 }
+
+// --- Proposal Assessment Pipeline ---
+
+export interface Proposal {
+  id: string;
+  title: string;
+  submitter_name: string;
+  submitter_org: string;
+  description: string;
+  domain: string;
+  challenge_id?: string; // linked challenge if any
+  company_id?: string;   // linked company if any
+  status: ProposalStatus;
+  votes: ProposalVote[];
+  assessment?: SniffAssessment;
+  innovation_board_notes?: string;
+  professor_review?: ProfessorReview;
+  meetup_scheduled?: string; // ISO date
+  created_at: string;
+  updated_at: string;
+}
+
+export type ProposalStatus =
+  | "submitted"       // just submitted
+  | "voting"          // internal voting phase
+  | "sniff_assessment"// scorecard being filled
+  | "approved"        // score >= 75%
+  | "discussion"      // score 65-75%, needs board discussion
+  | "rejected"        // score < 65%
+  | "innovation_board"// presenting to innovation board
+  | "professor_review"// state-of-the-art check
+  | "meetup"          // startup meetup / validation
+  | "enrolled";       // enrolled in challenge
+
+export interface ProposalVote {
+  id: string;
+  voter_name: string;
+  voter_role: string;
+  interested: boolean;
+  comment?: string;
+  created_at: string;
+}
+
+export interface SniffAssessment {
+  strategic_fit: number;        // 0-100
+  unmet_need: number;           // 0-100
+  feasibility: number;          // 0-100
+  innovative: number;           // 0-100
+  total_score: number;          // weighted average
+  assessor_name: string;
+  assessor_notes?: string;
+  created_at: string;
+}
+
+export interface ProfessorReview {
+  reviewer_name: string;
+  institution: string;
+  state_of_the_art_summary: string;
+  novelty_assessment: "highly_novel" | "moderately_novel" | "incremental" | "not_novel";
+  recommendation: "proceed" | "revise" | "reject";
+  comments: string;
+  created_at: string;
+}
