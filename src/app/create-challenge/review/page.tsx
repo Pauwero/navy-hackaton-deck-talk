@@ -221,7 +221,7 @@ export default function ChallengeReviewPage() {
       title: challenge.title,
       submitter_name: "Commander K. Peeters",
       submitter_org: "Belgian Navy",
-      description: challenge.description || profile.operational_impact || "Challenge submitted via AI-assisted flow",
+      description: challenge.description || challenge.operational_context || "Challenge submitted via AI-assisted flow",
       domain: challenge.domain,
       challenge_id: challenge.id,
       status: "submitted",
