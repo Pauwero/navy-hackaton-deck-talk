@@ -11,6 +11,7 @@ import {
   ListMusic,
   LayoutDashboard,
   UserPlus,
+  Crosshair,
   Menu,
   X,
 } from "lucide-react";
@@ -24,6 +25,7 @@ const navItems = [
   { href: "/research", label: "Research", icon: FlaskConical },
   { href: "/matches", label: "Matches", icon: Zap },
   { href: "/onboarding", label: "Onboard", icon: UserPlus },
+  { href: "/create-challenge", label: "New Challenge", icon: Crosshair },
   { href: "/playlist", label: "Playlist", icon: ListMusic },
 ];
 
@@ -109,7 +111,7 @@ export default function Navigation() {
       {/* Bottom tab bar (mobile) */}
       <div className="bottom-nav md:hidden">
         <div className="flex items-center justify-around px-2">
-          {navItems.slice(0, 5).map((item) => {
+          {navItems.slice(0, 6).map((item) => {
             const Icon = item.icon;
             const isActive = pathname.startsWith(item.href);
             return (
