@@ -20,6 +20,8 @@ import {
   Sparkles,
   Star,
   Zap,
+  ListPlus,
+  Check,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import MatchCard from "@/components/MatchCard";
@@ -58,6 +60,38 @@ export default function DashboardPage() {
 
   // Top 3 matches for the hero section
   const topMatches = profileMatches.slice(0, 3);
+
+  // Check if all top matches are already in playlist
+  const allTopInPlaylist = topMatches.length > 0 && topMatches.every((m) => store.isInPlaylist(m.target_id));
+  const [justAdded, setJustAdded] = useState(false);
+
+  function handleBulkAddToPlaylist() {
+    let added = 0;
+    for (const match of topMatches) {
+      if (!store.isInPlaylist(match.target_id)) {
+        const entityName =
+          match.target_type === "company"
+            ? store.companies.find((c) => c.id === match.target_id)?.name
+            : match.target_type === "research"
+              ? store.research.find((r) => r.id === match.target_id)?.title
+              : store.challenges.find((c) => c.id === match.target_id)?.title;
+
+        store.addToPlaylist({
+          id: `pl-${Date.now()}-${added}`,
+          user_id: store.userProfile.id,
+          item_type: match.target_type as "company" | "research" | "challenge",
+          item_id: match.target_id,
+          item_title: entityName || "Unknown",
+          added_at: new Date().toISOString(),
+        });
+        added++;
+      }
+    }
+    if (added > 0) {
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 2000);
+    }
+  }
 
   // Filtered companies/research for browse tabs
   const filteredCompanies = useMemo(() => {
@@ -258,14 +292,35 @@ export default function DashboardPage() {
           {/* Top matches hero */}
           {topMatches.length > 0 && (
             <div className="card p-5 mb-6 bg-gradient-to-r from-accent-500/5 to-purple-500/5 border border-accent-200">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-accent-500/10 flex items-center justify-center">
-                  <Zap className="w-4 h-4 text-accent-500" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-accent-500/10 flex items-center justify-center">
+                    <Zap className="w-4 h-4 text-accent-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-bold text-navy-900">Top Matches for You</h2>
+                    <p className="text-[0.65rem] text-navy-400">Based on your interests and preferences</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-sm font-bold text-navy-900">Top Matches for You</h2>
-                  <p className="text-[0.65rem] text-navy-400">Based on your interests and preferences</p>
-                </div>
+                <button
+                  onClick={handleBulkAddToPlaylist}
+                  disabled={allTopInPlaylist}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    justAdded
+                      ? "bg-emerald-500 text-white"
+                      : allTopInPlaylist
+                        ? "bg-navy-100 text-navy-400 cursor-default"
+                        : "bg-accent-500 hover:bg-accent-600 text-white"
+                  }`}
+                >
+                  {justAdded ? (
+                    <><Check className="w-3.5 h-3.5" /> Added!</>
+                  ) : allTopInPlaylist ? (
+                    <><Check className="w-3.5 h-3.5" /> All in Playlist</>
+                  ) : (
+                    <><ListPlus className="w-3.5 h-3.5" /> Add All to Playlist</>
+                  )}
+                </button>
               </div>
               <div className="grid md:grid-cols-3 gap-3">
                 {topMatches.map((match, i) => (
