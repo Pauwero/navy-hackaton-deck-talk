@@ -30,6 +30,7 @@ import {
   type ChallengeProfile,
   type ChallengeQuestion,
 } from "@/lib/challenge-agent";
+import { sendChatMessage, type ChatMessage as AIChatMessage } from "@/lib/claude-chat";
 
 interface ChatMessage {
   id: string;
@@ -48,6 +49,9 @@ export default function ChallengeChatPage() {
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
   const [phase, setPhase] = useState<"welcome" | "input" | "questions" | "review">("welcome");
+  const [useClaudeAI, setUseClaudeAI] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiHistory, setAiHistory] = useState<AIChatMessage[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -79,10 +83,38 @@ export default function ChallengeChatPage() {
     }]);
   }
 
-  function handleSend() {
+  async function handleSend() {
     if (!input.trim()) return;
     const text = input.trim();
     setInput("");
+
+    if (useClaudeAI) {
+      addUserMsg(text);
+      const extracted = extractChallengeFromText(text);
+      const updated = { ...profile };
+      for (const [key, value] of Object.entries(extracted)) {
+        if (value && (typeof value === "string" ? value.length > 0 : Array.isArray(value) ? value.length > 0 : true)) {
+          (updated as Record<string, unknown>)[key] = value;
+        }
+      }
+      setProfile(updated);
+
+      const newHistory: AIChatMessage[] = [...aiHistory, { role: "user", content: text }];
+      setAiHistory(newHistory);
+      setAiLoading(true);
+      try {
+        const response = await sendChatMessage(newHistory, "challenge");
+        setAiHistory([...newHistory, { role: "assistant", content: response }]);
+        addAgentMsg(response, "text");
+        const result = validateChallengeProfile(updated);
+        if (result.passed) setPhase("review");
+      } catch {
+        addAgentMsg("AI service unavailable. Toggle off Claude AI to use the structured flow.", "text");
+      }
+      setAiLoading(false);
+      return;
+    }
+
     if (phase === "input") { addUserMsg(text); processInput(text); }
     else if (phase === "questions") handleAnswer(text);
   }
@@ -241,7 +273,15 @@ export default function ChallengeChatPage() {
               <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse" /> Online
             </p>
           </div>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={() => setUseClaudeAI(!useClaudeAI)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                useClaudeAI ? "bg-accent-500 text-white" : "bg-navy-50 hover:bg-navy-100 text-navy-600"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" /> {useClaudeAI ? "Claude AI On" : "Claude AI"}
+            </button>
             <button
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center gap-1.5 bg-navy-50 hover:bg-navy-100 text-navy-600 px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
@@ -328,11 +368,26 @@ export default function ChallengeChatPage() {
             </div>
           )}
 
+          {aiLoading && (
+            <div className="flex gap-3">
+              <div className="w-8 h-8 rounded-full avatar-orange flex items-center justify-center shrink-0">
+                <Bot className="w-4 h-4 text-white" />
+              </div>
+              <div className="bg-white border border-navy-100 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-navy-300 animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <div className="w-2 h-2 rounded-full bg-navy-300 animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <div className="w-2 h-2 rounded-full bg-navy-300 animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
+              </div>
+            </div>
+          )}
+
           {phase === "review" && (
             <div className="flex justify-center pt-2">
               <button
                 onClick={handleProceedToReview}
-                className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2.5 rounded-full text-sm transition-all shadow-md"
+                className="flex items-center gap-2 bg-accent-500 hover:bg-accent-600 text-white font-semibold px-6 py-2.5 rounded-lg text-sm transition-all shadow-md"
               >
                 <Shield className="w-4 h-4" /> Proceed to Agent Review
               </button>

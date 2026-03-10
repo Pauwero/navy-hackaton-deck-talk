@@ -17,7 +17,11 @@ export default function RootLayout({
     <html lang="en">
       <body className="min-h-screen bg-surface">
         <Navigation />
-        <main className="max-w-6xl mx-auto px-4 py-6 pb-28 md:pb-16">{children}</main>
+        <main className="md:ml-64 min-h-screen">
+          <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 pb-28 md:pb-8">
+            {children}
+          </div>
+        </main>
         <PersistentPlayer />
       </body>
     </html>

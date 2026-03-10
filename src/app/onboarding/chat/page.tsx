@@ -32,6 +32,7 @@ import {
   type AgentMessage,
   type AgentQuestion,
 } from "@/lib/onboarding-agent";
+import { sendChatMessage, type ChatMessage } from "@/lib/claude-chat";
 
 export default function OnboardingChatPage() {
   const router = useRouter();
@@ -42,6 +43,9 @@ export default function OnboardingChatPage() {
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
   const [phase, setPhase] = useState<"welcome" | "input" | "questions" | "review">("welcome");
+  const [useClaudeAI, setUseClaudeAI] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiHistory, setAiHistory] = useState<ChatMessage[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -88,10 +92,42 @@ export default function OnboardingChatPage() {
     ]);
   }
 
-  function handleSendMessage() {
+  async function handleSendMessage() {
     if (!input.trim()) return;
     const text = input.trim();
     setInput("");
+
+    if (useClaudeAI) {
+      addUserMessage(text);
+      // Also extract profile data from user text
+      const extracted = extractProfileFromText(text);
+      const updated = { ...profile };
+      for (const [key, value] of Object.entries(extracted)) {
+        if (value && (typeof value === "string" ? value.length > 0 : Array.isArray(value) ? value.length > 0 : true)) {
+          (updated as Record<string, unknown>)[key] = value;
+        }
+      }
+      setProfile(updated);
+
+      const newHistory: ChatMessage[] = [...aiHistory, { role: "user", content: text }];
+      setAiHistory(newHistory);
+      setAiLoading(true);
+      try {
+        const response = await sendChatMessage(newHistory, "onboarding");
+        setAiHistory([...newHistory, { role: "assistant", content: response }]);
+        addAgentMessage(response, "text");
+
+        // Check if profile is becoming complete
+        const result = validateOnboardingProfile(updated);
+        if (result.passed) {
+          setPhase("review");
+        }
+      } catch (err) {
+        addAgentMessage("Sorry, I couldn't reach the AI service. You can continue using the structured flow by toggling off Claude AI mode.", "text");
+      }
+      setAiLoading(false);
+      return;
+    }
 
     if (phase === "input") {
       addUserMessage(text);
@@ -286,6 +322,14 @@ export default function OnboardingChatPage() {
           </div>
           <div className="ml-auto flex items-center gap-2">
             <button
+              onClick={() => setUseClaudeAI(!useClaudeAI)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                useClaudeAI ? "bg-accent-500 text-white" : "bg-navy-50 hover:bg-navy-100 text-navy-600"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" /> {useClaudeAI ? "Claude AI On" : "Claude AI"}
+            </button>
+            <button
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center gap-1.5 bg-navy-50 hover:bg-navy-100 text-navy-600 px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
             >
@@ -378,6 +422,22 @@ export default function OnboardingChatPage() {
                   Confirm selection →
                 </button>
               )}
+            </div>
+          )}
+
+          {/* AI loading indicator */}
+          {aiLoading && (
+            <div className="flex gap-3">
+              <div className="w-8 h-8 rounded-full avatar-green flex items-center justify-center shrink-0">
+                <Bot className="w-4 h-4 text-white" />
+              </div>
+              <div className="bg-white border border-navy-100 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-navy-300 animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <div className="w-2 h-2 rounded-full bg-navy-300 animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <div className="w-2 h-2 rounded-full bg-navy-300 animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
+              </div>
             </div>
           )}
 

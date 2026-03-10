@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import type {
   CompanyProfile, ResearchProfile, NavyChallenge,
   PlaylistItem, Match, Notification, Interest, GroupMatch, AudioPlayerState,
+  UserProfile,
 } from "@/types";
 import { sampleCompanies, sampleResearch, sampleChallenges } from "./sample-data";
 import {
@@ -29,6 +30,17 @@ let _audioPlayer: AudioPlayerState = {
   currentTitle: "",
   currentDescription: "",
   currentType: "company",
+};
+let _userProfile: UserProfile = {
+  id: "user-1",
+  name: "Commander A. de Vries",
+  role: "naval_officer",
+  organization: "Royal Netherlands Navy",
+  interests: ["autonomous systems", "mine countermeasures", "cybersecurity", "underwater robotics"],
+  preferred_domains: ["Mine Warfare", "Cyber Defense", "Autonomous Systems"],
+  preferred_trl_range: [5, 9],
+  match_entity_types: ["company", "research"],
+  saved_searches: [],
 };
 let _listeners: (() => void)[] = [];
 
@@ -61,7 +73,6 @@ export function useStore() {
     };
   }, []);
 
-  // Subscribe on mount
   useState(() => {
     const unsub = subscribe();
     return unsub;
@@ -77,10 +88,15 @@ export function useStore() {
     interests: _interests,
     groupMatches: _groupMatches,
     audioPlayer: _audioPlayer,
+    userProfile: _userProfile,
+
+    updateUserProfile(updates: Partial<UserProfile>) {
+      _userProfile = { ..._userProfile, ...updates };
+      notify();
+    },
 
     addCompany(c: CompanyProfile) {
       _companies = [c, ..._companies];
-      // Auto-run matchmaking and notify
       addNotification({
         type: "profile_matched",
         title: "Profile Created",
@@ -131,13 +147,11 @@ export function useStore() {
     runMatchmaking() {
       const newMatches: Match[] = [];
 
-      // Challenge → Company & Research
       for (const challenge of _challenges) {
         newMatches.push(...matchChallengeToCompanies(challenge, _companies));
         newMatches.push(...matchChallengeToResearch(challenge, _research));
       }
 
-      // Company → Company & Research
       for (const company of _companies) {
         newMatches.push(...matchCompanyToCompany(company, _companies));
         newMatches.push(...matchCompanyToResearch(company, _research));
@@ -145,13 +159,11 @@ export function useStore() {
 
       _matches = newMatches.sort((a, b) => b.score - a.score);
 
-      // Generate group matches
       _groupMatches = [];
       for (const challenge of _challenges) {
         _groupMatches.push(...generateGroupMatches(challenge, _companies, _research, _matches));
       }
 
-      // Generate notifications for top matches
       const topNew = _matches.slice(0, 3);
       if (topNew.length > 0) {
         addNotification({
@@ -174,7 +186,36 @@ export function useStore() {
       return _groupMatches.filter((gm) => gm.challenge_id === challengeId);
     },
 
-    // Recommendations for a specific entity
+    getProfileMatches() {
+      const profile = _userProfile;
+      return _matches
+        .filter((m) => {
+          const targetType = m.target_type;
+          const sourceType = m.source_type;
+          const relevantTypes = profile.match_entity_types;
+          if (!relevantTypes.includes(targetType as "company" | "research" | "challenge") &&
+              !relevantTypes.includes(sourceType as "company" | "research" | "challenge")) {
+            return false;
+          }
+          return true;
+        })
+        .filter((m) => {
+          const [minTrl, maxTrl] = profile.preferred_trl_range;
+          const targetId = m.target_id;
+          const company = _companies.find((c) => c.id === targetId);
+          const research = _research.find((r) => r.id === targetId);
+          const trl = company?.trl_level || research?.trl_level;
+          if (trl && (trl < minTrl || trl > maxTrl)) return false;
+          return true;
+        })
+        .sort((a, b) => {
+          const scoreA = a.score + getInterestBoost(a, profile);
+          const scoreB = b.score + getInterestBoost(b, profile);
+          return scoreB - scoreA;
+        })
+        .slice(0, 12);
+    },
+
     getRecommendedChallenges(entityId: string) {
       return _matches
         .filter((m) => (m.target_id === entityId || m.source_id === entityId) &&
@@ -183,7 +224,6 @@ export function useStore() {
         .slice(0, 5);
     },
 
-    // Express interest in a challenge
     expressInterest(challengeId: string, entityId: string, entityType: "company" | "research", entityName: string, message?: string) {
       if (_interests.find((i) => i.challenge_id === challengeId && i.entity_id === entityId)) return;
 
@@ -217,7 +257,6 @@ export function useStore() {
       return _interests.some((i) => i.challenge_id === challengeId && i.entity_id === entityId);
     },
 
-    // Notifications
     markNotificationRead(id: string) {
       _notifications = _notifications.map((n) =>
         n.id === id ? { ...n, read: true } : n
@@ -234,7 +273,6 @@ export function useStore() {
       return _notifications.filter((n) => !n.read).length;
     },
 
-    // Persistent audio player
     playAudio(itemId: string, title: string, description: string, type: "company" | "research" | "challenge") {
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
 
@@ -278,7 +316,6 @@ export function useStore() {
       notify();
     },
 
-    // AI-ranked search
     searchWithRelevance(query: string) {
       if (!query.trim()) return { companies: [], research: [], challenges: [] };
       const q = query.toLowerCase();
@@ -290,7 +327,6 @@ export function useStore() {
         for (const word of words) {
           const count = (combined.match(new RegExp(word, "g")) || []).length;
           score += count * 10;
-          // Bonus for exact phrase match
           if (combined.includes(q)) score += 25;
         }
         return score;
@@ -299,7 +335,7 @@ export function useStore() {
       const companies = _companies
         .map((c) => ({
           item: c,
-          relevance: scoreEntity([c.name, c.description, c.sector, ...c.capabilities, ...c.technologies]),
+          relevance: scoreEntity([c.name, c.description, c.sector, ...c.capabilities, ...c.technologies, ...c.use_cases]),
         }))
         .filter((r) => r.relevance > 0)
         .sort((a, b) => b.relevance - a.relevance)
@@ -326,4 +362,13 @@ export function useStore() {
       return { companies, research, challenges };
     },
   };
+}
+
+function getInterestBoost(match: Match, profile: UserProfile): number {
+  let boost = 0;
+  const reasoning = match.reasoning.toLowerCase();
+  for (const interest of profile.interests) {
+    if (reasoning.includes(interest.toLowerCase())) boost += 5;
+  }
+  return boost;
 }

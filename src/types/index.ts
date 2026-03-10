@@ -138,6 +138,20 @@ export interface AudioPlayerState {
   currentType: "company" | "research" | "challenge";
 }
 
+// --- User profile for matchmaking ---
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  role: "naval_officer" | "procurement" | "innovation_manager" | "researcher" | "company_rep";
+  organization: string;
+  interests: string[];
+  preferred_domains: string[];
+  preferred_trl_range: [number, number];
+  match_entity_types: ("company" | "research" | "challenge")[];
+  saved_searches: string[];
+}
+
 // --- Onboarding types ---
 
 export interface OnboardingSession {

@@ -23,11 +23,11 @@ export default function Home() {
       <section className="text-center pt-10 pb-4">
         <div className="flex justify-center mb-5">
           <div className="relative">
-            <div className="w-20 h-20 rounded-2xl bg-accent-500 flex items-center justify-center shadow-lg">
-              <Anchor className="w-10 h-10 text-white" />
+            <div className="w-20 h-20 rounded-2xl bg-navy-900 flex items-center justify-center shadow-lg">
+              <Shield className="w-10 h-10 text-white" />
             </div>
-            <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-heart flex items-center justify-center shadow-md">
-              <Heart className="w-3.5 h-3.5 text-white fill-white" />
+            <div className="absolute -top-1 -right-1 w-7 h-7 rounded-lg bg-accent-500 flex items-center justify-center shadow-md">
+              <Zap className="w-3.5 h-3.5 text-white" />
             </div>
           </div>
         </div>
@@ -41,21 +41,21 @@ export default function Home() {
         <div className="flex flex-wrap justify-center gap-3">
           <Link
             href="/matches"
-            className="flex items-center gap-2 bg-accent-500 hover:bg-accent-600 text-white font-semibold px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all"
+            className="flex items-center gap-2 bg-accent-500 hover:bg-accent-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all"
           >
             <Sparkles className="w-5 h-5" />
             Discover Matches
           </Link>
           <Link
             href="/onboarding"
-            className="flex items-center gap-2 bg-white hover:bg-navy-50 text-navy-700 border border-navy-200 px-6 py-3 rounded-full transition-all"
+            className="flex items-center gap-2 bg-white hover:bg-navy-50 text-navy-700 border border-navy-200 px-6 py-3 rounded-lg transition-all"
           >
             <Building2 className="w-5 h-5" />
             Register Company
           </Link>
           <Link
             href="/research/new"
-            className="flex items-center gap-2 bg-white hover:bg-navy-50 text-navy-700 border border-navy-200 px-6 py-3 rounded-full transition-all"
+            className="flex items-center gap-2 bg-white hover:bg-navy-50 text-navy-700 border border-navy-200 px-6 py-3 rounded-lg transition-all"
           >
             <FlaskConical className="w-5 h-5" />
             Submit Research
@@ -74,23 +74,23 @@ export default function Home() {
           </h2>
           <ul className="space-y-2.5 text-sm text-navy-500">
             <li className="flex gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-danger-400 mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-lg bg-danger-400 mt-1.5 shrink-0" />
               Manual ideation board — unstructured and inconsistent
             </li>
             <li className="flex gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-danger-400 mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-lg bg-danger-400 mt-1.5 shrink-0" />
               Low-quality company input through inno4def, filtered manually
             </li>
             <li className="flex gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-danger-400 mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-lg bg-danger-400 mt-1.5 shrink-0" />
               No smart matching between challenges and solutions
             </li>
             <li className="flex gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-danger-400 mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-lg bg-danger-400 mt-1.5 shrink-0" />
               Companies with complementary solutions can&apos;t find each other
             </li>
             <li className="flex gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-danger-400 mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-lg bg-danger-400 mt-1.5 shrink-0" />
               Dense, text-heavy knowledge that&apos;s hard to consume on the go
             </li>
           </ul>
@@ -105,23 +105,23 @@ export default function Home() {
           </h2>
           <ul className="space-y-2.5 text-sm text-navy-500">
             <li className="flex gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-success-400 mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-lg bg-success-400 mt-1.5 shrink-0" />
               Structured challenge posting with Quality Gate Agent
             </li>
             <li className="flex gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-success-400 mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-lg bg-success-400 mt-1.5 shrink-0" />
               Company Quality Gate enforces rich, AI-ready profiles
             </li>
             <li className="flex gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-success-400 mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-lg bg-success-400 mt-1.5 shrink-0" />
               Three-way AI matchmaking (Challenge ↔ Company ↔ Research)
             </li>
             <li className="flex gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-success-400 mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-lg bg-success-400 mt-1.5 shrink-0" />
               Collaboration matching between companies and researchers
             </li>
             <li className="flex gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-success-400 mt-1.5 shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-lg bg-success-400 mt-1.5 shrink-0" />
               Audio snippets + personal playlist for on-the-go consumption
             </li>
           </ul>
@@ -215,15 +215,15 @@ export default function Home() {
         <div className="grid md:grid-cols-3 gap-4">
           <div className="bg-navy-50 rounded-2xl p-5 text-center">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <div className="w-9 h-9 rounded-full avatar-orange flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg avatar-orange flex items-center justify-center">
                 <Target className="w-4 h-4 text-white" />
               </div>
               <ArrowRight className="w-4 h-4 text-navy-300" />
-              <div className="w-9 h-9 rounded-full avatar-blue flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg avatar-blue flex items-center justify-center">
                 <Building2 className="w-4 h-4 text-white" />
               </div>
               <span className="text-navy-300">/</span>
-              <div className="w-9 h-9 rounded-full avatar-purple flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg avatar-purple flex items-center justify-center">
                 <FlaskConical className="w-4 h-4 text-white" />
               </div>
             </div>
@@ -232,11 +232,11 @@ export default function Home() {
           </div>
           <div className="bg-navy-50 rounded-2xl p-5 text-center">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <div className="w-9 h-9 rounded-full avatar-blue flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg avatar-blue flex items-center justify-center">
                 <Building2 className="w-4 h-4 text-white" />
               </div>
               <ArrowRight className="w-4 h-4 text-navy-300" />
-              <div className="w-9 h-9 rounded-full avatar-orange flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg avatar-orange flex items-center justify-center">
                 <Target className="w-4 h-4 text-white" />
               </div>
             </div>
@@ -245,11 +245,11 @@ export default function Home() {
           </div>
           <div className="bg-navy-50 rounded-2xl p-5 text-center">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <div className="w-9 h-9 rounded-full avatar-blue flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg avatar-blue flex items-center justify-center">
                 <Building2 className="w-4 h-4 text-white" />
               </div>
               <Heart className="w-4 h-4 text-heart" />
-              <div className="w-9 h-9 rounded-full avatar-purple flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg avatar-purple flex items-center justify-center">
                 <FlaskConical className="w-4 h-4 text-white" />
               </div>
             </div>
@@ -267,7 +267,7 @@ export default function Home() {
           <p className="text-white/70 mb-6">Join the platform and accelerate naval innovation together.</p>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 bg-white hover:bg-navy-50 text-accent-600 font-bold px-8 py-3 rounded-full transition-colors shadow-md"
+            className="inline-flex items-center gap-2 bg-white hover:bg-navy-50 text-accent-600 font-bold px-8 py-3 rounded-lg transition-colors shadow-md"
           >
             Go to Dashboard <ArrowRight className="w-5 h-5" />
           </Link>

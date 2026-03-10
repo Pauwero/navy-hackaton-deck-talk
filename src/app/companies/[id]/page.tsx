@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Building2, ArrowLeft, Star, Globe, Mail, Users, ExternalLink, Target, Sparkles } from "lucide-react";
+import { ArrowLeft, Globe, Mail, Users, ExternalLink, Target, Zap, CheckCircle2 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import AudioSnippet from "@/components/AudioSnippet";
 import MatchCard from "@/components/MatchCard";
@@ -34,79 +34,45 @@ export default function CompanyDetailPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Link href="/companies" className="flex items-center gap-1 text-navy-400 hover:text-accent-500 text-sm mb-4 transition-colors">
-        <ArrowLeft className="w-4 h-4" /> Back to Companies
+      <Link href="/companies" className="flex items-center gap-1 text-navy-500 hover:text-accent-500 text-sm mb-4 transition-colors">
+        <ArrowLeft className="w-4 h-4" /> Companies
       </Link>
 
-      <div className="card p-6 mb-6">
-        <div className="flex items-start justify-between mb-5">
+      {/* Header */}
+      <div className="card p-6 mb-4">
+        <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl avatar-blue flex items-center justify-center text-lg font-bold text-white">
+            <div className="w-14 h-14 rounded-xl avatar-blue flex items-center justify-center text-lg font-bold text-white">
               {company.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-navy-900">{company.name}</h1>
-              <p className="text-accent-500 font-medium">{company.sector}</p>
+              <h1 className="text-xl font-bold text-navy-900">{company.name}</h1>
+              <p className="text-sm text-navy-500">{company.sector}</p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 bg-warning-500/10 px-3 py-1.5 rounded-full">
-            <Star className="w-4 h-4 text-warning-500" />
-            <span className="text-sm text-warning-500 font-semibold">{company.quality_score}/100</span>
-          </div>
+          <span className="text-sm font-bold text-navy-700 bg-navy-50 px-3 py-1.5 rounded-lg">TRL {company.trl_level}/9</span>
         </div>
 
-        <p className="text-navy-600 mb-5 leading-relaxed">{company.description}</p>
+        <p className="text-sm text-navy-700 leading-relaxed mb-4">{company.description}</p>
 
-        <div className="grid md:grid-cols-2 gap-5 mb-5">
-          <div>
-            <h3 className="text-xs font-semibold text-navy-400 uppercase tracking-wide mb-2">Capabilities</h3>
-            <div className="flex flex-wrap gap-1.5">
-              {company.capabilities.map((cap) => (
-                <span key={cap} className="tag-pill border-blue-200 text-blue-600 bg-blue-50">{cap}</span>
-              ))}
-            </div>
-          </div>
-          <div>
-            <h3 className="text-xs font-semibold text-navy-400 uppercase tracking-wide mb-2">Technologies</h3>
-            <div className="flex flex-wrap gap-1.5">
-              {company.technologies.map((tech) => (
-                <span key={tech} className="tag-pill border-purple-200 text-purple-600 bg-purple-50">{tech}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-3 mb-5">
-          <div className="bg-navy-50 rounded-xl p-4">
-            <p className="text-xs text-navy-400 font-medium">TRL Level</p>
-            <p className="text-xl font-bold text-navy-900">{company.trl_level}/9</p>
-          </div>
-          <div className="bg-navy-50 rounded-xl p-4">
-            <p className="text-xs text-navy-400 font-medium">Team Size</p>
-            <p className="text-lg font-bold text-navy-900 flex items-center gap-1.5">
-              <Users className="w-4 h-4 text-navy-400" /> {company.team_size}
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="bg-navy-50 rounded-lg p-3">
+            <p className="text-xs text-navy-500 font-medium mb-1">Team</p>
+            <p className="text-sm font-semibold text-navy-800 flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-navy-400" /> {company.team_size}
             </p>
           </div>
-          <div className="bg-navy-50 rounded-xl p-4">
-            <p className="text-xs text-navy-400 font-medium">Contact</p>
-            <p className="text-sm text-accent-500 flex items-center gap-1 truncate">
-              <Mail className="w-3.5 h-3.5" /> {company.contact_email}
+          <div className="bg-navy-50 rounded-lg p-3">
+            <p className="text-xs text-navy-500 font-medium mb-1">Contact</p>
+            <p className="text-xs text-accent-500 flex items-center gap-1 truncate">
+              <Mail className="w-3 h-3 shrink-0" /> {company.contact_email}
             </p>
           </div>
-        </div>
-
-        {company.use_cases.length > 0 && (
-          <div className="mb-5">
-            <h3 className="text-xs font-semibold text-navy-400 uppercase tracking-wide mb-2">Use Cases</h3>
-            <ul className="space-y-1.5">
-              {company.use_cases.map((uc) => (
-                <li key={uc} className="text-sm text-navy-600 flex gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent-500 mt-1.5 shrink-0" /> {uc}
-                </li>
-              ))}
-            </ul>
+          <div className="bg-navy-50 rounded-lg p-3">
+            <p className="text-xs text-navy-500 font-medium mb-1">Quality</p>
+            <p className="text-sm font-semibold text-navy-800">{company.quality_score}/100</p>
           </div>
-        )}
+        </div>
 
         {company.website && (
           <a
@@ -119,36 +85,72 @@ export default function CompanyDetailPage() {
           </a>
         )}
 
-        <div className="border-t border-navy-100 pt-4 mt-4">
-          <AudioSnippet
-            itemId={company.id}
-            itemType="company"
-            title={company.name}
-            description={company.description}
-          />
+        <div className="border-t border-navy-100 pt-3 mt-3">
+          <AudioSnippet itemId={company.id} itemType="company" title={company.name} description={company.description} />
         </div>
       </div>
 
-      {/* Recommended Challenges (#11) */}
-      {challengeItems.length > 0 && (
-        <div className="mb-6">
-          <h2 className="text-lg font-bold text-navy-900 mb-4 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-accent-500" />
-            Recommended Challenges for You
+      {/* Use Cases — main showcase */}
+      {company.use_cases.length > 0 && (
+        <div className="card p-6 mb-4">
+          <h2 className="text-sm font-bold text-navy-900 uppercase tracking-wide mb-4 flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-success-500" />
+            Proven Use Cases & Track Record
           </h2>
-          <div className="space-y-3">
+          <div className="grid gap-3">
+            {company.use_cases.map((uc, i) => (
+              <div key={uc} className="flex items-start gap-3 p-3 bg-success-500/5 border border-success-500/10 rounded-lg">
+                <div className="w-7 h-7 rounded-md bg-success-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-xs font-bold text-success-500">{i + 1}</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-navy-800">{uc}</p>
+                  <p className="text-xs text-navy-500 mt-0.5">Demonstrated capability with defense-relevant application</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Capabilities & Technologies */}
+      <div className="grid md:grid-cols-2 gap-4 mb-4">
+        <div className="card p-5">
+          <h3 className="text-xs font-bold text-navy-500 uppercase tracking-wide mb-3">Capabilities</h3>
+          <div className="flex flex-wrap gap-1.5">
+            {company.capabilities.map((cap) => (
+              <span key={cap} className="tag-pill border-accent-500/20 text-accent-600 bg-accent-500/5">{cap}</span>
+            ))}
+          </div>
+        </div>
+        <div className="card p-5">
+          <h3 className="text-xs font-bold text-navy-500 uppercase tracking-wide mb-3">Technologies</h3>
+          <div className="flex flex-wrap gap-1.5">
+            {company.technologies.map((tech) => (
+              <span key={tech} className="tag-pill border-purple-200 text-purple-600 bg-purple-50">{tech}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Recommended Challenges */}
+      {challengeItems.length > 0 && (
+        <div className="mb-4">
+          <h2 className="text-sm font-bold text-navy-900 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <Target className="w-4 h-4 text-gold-500" />
+            Matching Challenges
+          </h2>
+          <div className="space-y-2">
             {challengeItems.map(({ match, challenge }) => (
-              <Link key={match.id} href={`/challenges/${challenge!.id}`} className="card p-4 flex items-center gap-4 block">
-                <div className="w-11 h-11 rounded-full avatar-orange flex items-center justify-center text-white shrink-0">
-                  <Target className="w-5 h-5" />
+              <Link key={match.id} href={`/challenges/${challenge!.id}`} className="card p-3 flex items-center gap-3 block group">
+                <div className="w-9 h-9 rounded-lg avatar-gold flex items-center justify-center text-white shrink-0">
+                  <Target className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-navy-900">{challenge!.title}</p>
-                  <p className="text-xs text-navy-400">{challenge!.domain} | TRL {challenge!.desired_trl} | {match.score}% match</p>
+                  <p className="text-sm font-semibold text-navy-900 group-hover:text-accent-500 transition-colors">{challenge!.title}</p>
+                  <p className="text-xs text-navy-500">{challenge!.domain} &middot; TRL {challenge!.desired_trl}</p>
                 </div>
-                <span className={`tag-pill shrink-0 bg-success-500/10 text-success-500 border-success-200`}>
-                  {match.score}%
-                </span>
+                <span className="text-xs font-bold text-success-500 bg-success-500/10 px-2 py-1 rounded">{match.score}%</span>
               </Link>
             ))}
           </div>
@@ -157,8 +159,11 @@ export default function CompanyDetailPage() {
 
       {matches.length > 0 && (
         <div>
-          <h2 className="text-lg font-bold text-navy-900 mb-4">All AI Matches</h2>
-          <div className="grid md:grid-cols-2 gap-4">
+          <h2 className="text-sm font-bold text-navy-900 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <Zap className="w-4 h-4 text-accent-500" />
+            All AI Matches
+          </h2>
+          <div className="grid md:grid-cols-2 gap-3">
             {matches.slice(0, 6).map((match) => (
               <MatchCard key={match.id} match={match} />
             ))}
