@@ -1,9 +1,18 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+// Lazy-init to ensure env vars are loaded before client creation
+let _client: Anthropic | null = null;
+function getClient(): Anthropic {
+  if (!_client) {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error("ANTHROPIC_API_KEY environment variable is not set. Add it to .env.local");
+    }
+    _client = new Anthropic({ apiKey });
+  }
+  return _client;
+}
 
 const ONBOARDING_SYSTEM = `You are the Quality Gate Agent for Inno4Def 2.0 — a specialized assistant that helps companies register on a defense innovation platform. You ensure their profiles are structured, complete, and AI-ready for matchmaking.
 
@@ -87,6 +96,7 @@ export async function POST(req: NextRequest) {
       ? `${systemPrompt}\n\n--- Context Data ---\n${JSON.stringify(context, null, 2)}`
       : systemPrompt;
 
+    const client = getClient();
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 2048,
@@ -113,6 +123,9 @@ export async function POST(req: NextRequest) {
     }
     if (error instanceof Anthropic.AuthenticationError) {
       return NextResponse.json({ error: "API key not configured. Set ANTHROPIC_API_KEY environment variable." }, { status: 401 });
+    }
+    if (error instanceof Error && error.message.includes("ANTHROPIC_API_KEY")) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
     const message = error instanceof Anthropic.APIError
       ? `API error: ${error.message}`
