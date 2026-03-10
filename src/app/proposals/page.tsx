@@ -88,7 +88,7 @@ export default function ProposalsPage() {
           </p>
         </div>
         <Link
-          href="/proposals/new"
+          href="/create-challenge"
           className="flex items-center gap-1.5 bg-accent-500 hover:bg-accent-600 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all"
         >
           <Plus className="w-4 h-4" /> New Proposal
