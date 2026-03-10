@@ -32,7 +32,7 @@ import {
   type ChallengeQuestion,
 } from "@/lib/challenge-agent";
 import { useStore } from "@/lib/store";
-import type { NavyChallenge, QualityGateResult } from "@/types";
+import type { NavyChallenge, Proposal, QualityGateResult } from "@/types";
 
 interface ReviewMessage {
   id: string;
@@ -215,7 +215,23 @@ export default function ChallengeReviewPage() {
     store.addChallenge(challenge);
     store.runMatchmaking();
 
-    addMsg("agent", `Challenge **"${challenge.title}"** published! AI is now matching it with companies and research that can help.`, "approval");
+    // Auto-create a proposal in the pipeline for the new challenge
+    const proposal: Proposal = {
+      id: "prop-" + Math.random().toString(36).substring(2, 8),
+      title: challenge.title,
+      submitter_name: "Commander K. Peeters",
+      submitter_org: "Belgian Navy",
+      description: challenge.description || profile.operational_impact || "Challenge submitted via AI-assisted flow",
+      domain: challenge.domain,
+      challenge_id: challenge.id,
+      status: "submitted",
+      votes: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    store.addProposal(proposal);
+
+    addMsg("agent", `Challenge **"${challenge.title}"** published! AI is now matching it with companies and research. A proposal has been created in the **Proposal Pipeline**.`, "approval");
     setTimeout(() => router.push(`/challenges/${challenge.id}`), 1500);
   }
 

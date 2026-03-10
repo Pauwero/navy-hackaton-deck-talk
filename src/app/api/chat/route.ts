@@ -1,7 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const client = new Anthropic();
+const client = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
 const ONBOARDING_SYSTEM = `You are the Quality Gate Agent for Inno4Def 2.0 — a specialized assistant that helps companies register on a defense innovation platform. You ensure their profiles are structured, complete, and AI-ready for matchmaking.
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Building2, FlaskConical, Target, Link2, Star } from "lucide-react";
+import { ArrowRight, Building2, FlaskConical, Target, Link2, Star, Lightbulb } from "lucide-react";
 import type { Match } from "@/types";
 import { useStore } from "@/lib/store";
 
@@ -75,7 +75,9 @@ export default function MatchCard({ match, compact }: { match: Match; compact?: 
             <p className="font-semibold text-sm text-navy-900 group-hover:text-accent-500 transition-colors truncate">
               {targetName}
             </p>
-            <p className="text-[0.65rem] text-navy-400 truncate">{match.reasoning.split(".")[0]}</p>
+            <p className="text-[0.65rem] text-navy-500 truncate">
+              <span className="text-accent-500 font-medium">Why:</span> {match.reasoning.split(".")[0]}
+            </p>
           </div>
           <div className="text-right shrink-0">
             <span className={`text-sm font-bold ${scoreInfo.color}`}>{match.score}%</span>
@@ -128,9 +130,13 @@ export default function MatchCard({ match, compact }: { match: Match; compact?: 
         <p className={`text-[0.6rem] mt-1 ${scoreInfo.color} font-medium`}>{scoreInfo.label} match</p>
       </div>
 
-      <div className="flex items-start gap-1.5 mb-3">
-        <Link2 className="w-3 h-3 text-accent-500 mt-0.5 shrink-0" />
-        <p className="text-[0.7rem] text-navy-500 line-clamp-2">{match.reasoning}</p>
+      {/* Match reasoning */}
+      <div className="bg-accent-50/50 border border-accent-100 rounded-lg p-2.5 mb-3">
+        <div className="flex items-center gap-1.5 mb-1">
+          <Lightbulb className="w-3 h-3 text-accent-500" />
+          <span className="text-[0.6rem] font-semibold text-accent-600 uppercase tracking-wide">Why this match</span>
+        </div>
+        <p className="text-[0.7rem] text-navy-600 leading-relaxed">{match.reasoning}</p>
       </div>
 
       <div className="flex items-center justify-between pt-3 border-t border-navy-100">
