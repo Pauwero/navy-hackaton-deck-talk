@@ -149,13 +149,15 @@ export default function ChallengeChatPage() {
       const valMsg = generateChallengeValidationSummary(result);
       addAgentMsg(valMsg, "validation");
 
-      const questions = generateChallengeQuestions(updated);
+      const allQuestions = generateChallengeQuestions(updated);
+      // For demo: limit to max 2 questions
+      const questions = allQuestions.slice(0, 2);
       if (questions.length > 0) {
         setPendingQuestions(questions);
         setCurrentQuestionIdx(0);
         setPhase("questions");
         setTimeout(() => {
-          addAgentMsg(`I have **${questions.length} question(s)** to complete your challenge specification.`, "text");
+          addAgentMsg(`I have **${questions.length} quick question(s)** to complete your challenge specification.`, "text");
           addAgentMsg(questions[0].question, "question");
         }, 500);
       } else {
@@ -217,16 +219,9 @@ export default function ChallengeChatPage() {
             setPhase("review");
             addAgentMsg("Your challenge is ready for final review.", "approval");
           } else {
-            const more = generateChallengeQuestions(updated);
-            if (more.length > 0 && more.length < pendingQuestions.length) {
-              setPendingQuestions(more);
-              setCurrentQuestionIdx(0);
-              addAgentMsg(`Almost there! ${more.length} more point(s).`, "text");
-              addAgentMsg(more[0].question, "question");
-            } else {
-              setPhase("review");
-              addAgentMsg("You can proceed to review — the agent will highlight remaining areas.", "approval");
-            }
+            // For demo: skip additional rounds, go straight to review
+            setPhase("review");
+            addAgentMsg("You can proceed to review — the agent will highlight remaining areas.", "approval");
           }
         }, 400);
       }, 300);

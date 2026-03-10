@@ -150,9 +150,9 @@ Check the platform for:
   Can you describe the general capability need without specific system names or performance data?"
 - ALWAYS validate TRL/timeline alignment — TRL 8 with a 6-month timeline on a novel
   concept is unrealistic
-- Maximum 5 rounds of questions before allowing submission
-- If requirements are too vague after 3 rounds, suggest the officer consult with their
-  requirements engineering team
+- Maximum 2 rounds of questions before structuring the challenge and allowing submission
+- Combine related topics into single questions to stay within the 2-question limit
+- After 2 exchanges, move directly to structuring — do NOT keep probing
 
 ## After Completing Your Task
 
