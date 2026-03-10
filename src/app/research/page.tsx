@@ -2,12 +2,14 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { FlaskConical, Plus, ArrowRight, Search } from "lucide-react";
+import { FlaskConical, Plus, ArrowRight, Search, Star, Brain, Zap, BookOpen } from "lucide-react";
 import { useStore } from "@/lib/store";
 
 export default function ResearchPage() {
   const { research } = useStore();
   const [query, setQuery] = useState("");
+
+  const { matches } = useStore();
 
   const filtered = useMemo(() => {
     if (!query.trim()) return research;
@@ -21,22 +23,70 @@ export default function ResearchPage() {
     );
   }, [research, query]);
 
+  // Stats
+  const avgQuality = research.length > 0 ? Math.round(research.reduce((s, r) => s + r.quality_score, 0) / research.length) : 0;
+  const uniqueFields = [...new Set(research.map((r) => r.field))].length;
+  const totalKeywords = [...new Set(research.flatMap((r) => r.keywords))].length;
+  const researchMatches = matches.filter((m) => m.source_type === "research" || m.target_type === "research").length;
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-navy-900">Research</h1>
-          <p className="text-sm text-navy-500">{research.length} projects</p>
+          <h1 className="text-xl font-bold text-navy-900">Research Intelligence</h1>
+          <p className="text-sm text-navy-500 mt-0.5">
+            Academic & institutional knowledge base for AI-powered challenge matching
+          </p>
         </div>
         <Link
           href="/research/new"
           className="flex items-center gap-1.5 bg-accent-500 hover:bg-accent-600 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all"
         >
-          <Plus className="w-4 h-4" /> Submit
+          <Plus className="w-4 h-4" /> Submit Research
         </Link>
       </div>
 
-      <div className="relative mb-5">
+      {/* Stats bar */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="card-surface px-4 py-3">
+          <p className="text-[0.65rem] font-medium text-navy-500 uppercase tracking-wide">Projects</p>
+          <p className="text-2xl font-bold text-navy-900">{research.length}</p>
+        </div>
+        <div className="card-surface px-4 py-3">
+          <p className="text-[0.65rem] font-medium text-navy-500 uppercase tracking-wide">Avg Quality</p>
+          <p className="text-2xl font-bold text-purple-600">{avgQuality}/100</p>
+        </div>
+        <div className="card-surface px-4 py-3">
+          <p className="text-[0.65rem] font-medium text-navy-500 uppercase tracking-wide">Fields</p>
+          <p className="text-2xl font-bold text-navy-900">{uniqueFields}</p>
+        </div>
+        <div className="card-surface px-4 py-3">
+          <p className="text-[0.65rem] font-medium text-navy-500 uppercase tracking-wide">Keywords Indexed</p>
+          <p className="text-2xl font-bold text-navy-900">{totalKeywords}</p>
+        </div>
+        <div className="card-surface px-4 py-3">
+          <p className="text-[0.65rem] font-medium text-navy-500 uppercase tracking-wide">AI Matches</p>
+          <p className="text-2xl font-bold text-gold-600">{researchMatches}</p>
+        </div>
+      </div>
+
+      {/* AI Memory indicator */}
+      <div className="card-surface p-4 flex items-center gap-4 border-l-4 border-purple-500">
+        <Brain className="w-6 h-6 text-purple-500 shrink-0" />
+        <div className="flex-1">
+          <p className="text-sm font-bold text-navy-900">AI Knowledge Base Active</p>
+          <p className="text-xs text-navy-500">
+            {research.length} research profiles indexed · {totalKeywords} keywords mapped · {researchMatches} AI matches generated.
+            All submitted research is automatically analyzed and matched against open challenges.
+          </p>
+        </div>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 rounded-full shrink-0">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-xs font-medium text-emerald-700">Live</span>
+        </div>
+      </div>
+
+      <div className="relative">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-navy-400" />
         <input
           type="text"
@@ -73,9 +123,18 @@ export default function ResearchPage() {
                 <span className="text-xs font-bold text-navy-600 bg-navy-50 px-2 py-0.5 rounded">TRL {r.trl_level}</span>
                 <span className="text-[0.65rem] text-navy-400">{r.funding_status}</span>
               </div>
-              <span className="flex items-center gap-1 text-accent-500 text-xs font-semibold group-hover:gap-1.5 transition-all">
-                Details <ArrowRight className="w-3 h-3" />
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={`flex items-center gap-1 text-[0.65rem] font-bold px-1.5 py-0.5 rounded-full ${
+                  r.quality_score >= 80 ? "bg-emerald-50 text-emerald-600" :
+                  r.quality_score >= 60 ? "bg-amber-50 text-amber-600" :
+                  "bg-red-50 text-red-600"
+                }`}>
+                  <Star className="w-3 h-3" />{r.quality_score}
+                </span>
+                <span className="flex items-center gap-1 text-accent-500 text-xs font-semibold group-hover:gap-1.5 transition-all">
+                  Details <ArrowRight className="w-3 h-3" />
+                </span>
+              </div>
             </div>
           </Link>
         ))}

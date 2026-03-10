@@ -23,7 +23,7 @@ import type { ProposalStatus } from "@/types";
 const STATUS_CONFIG: Record<ProposalStatus, { label: string; color: string; icon: typeof FileCheck }> = {
   submitted: { label: "Submitted", color: "bg-navy-100 text-navy-600", icon: FileCheck },
   voting: { label: "Voting", color: "bg-blue-100 text-blue-700", icon: Vote },
-  sniff_assessment: { label: "Sniff Assessment", color: "bg-amber-100 text-amber-700", icon: ClipboardCheck },
+  sniff_assessment: { label: "SNIF Assessment", color: "bg-amber-100 text-amber-700", icon: ClipboardCheck },
   approved: { label: "Approved", color: "bg-emerald-100 text-emerald-700", icon: CheckCircle2 },
   discussion: { label: "Discussion", color: "bg-orange-100 text-orange-700", icon: MessageSquare },
   rejected: { label: "Rejected", color: "bg-red-100 text-red-700", icon: XCircle },
@@ -59,6 +59,39 @@ function ScoreBadge({ score }: { score: number }) {
   );
 }
 
+const PROGRESS_STAGES: ProposalStatus[] = [
+  "voting", "sniff_assessment", "approved", "innovation_board", "professor_review", "meetup", "enrolled",
+];
+
+function getProgressIndex(status: ProposalStatus): number {
+  if (status === "submitted") return -1;
+  if (status === "discussion") return 2;
+  if (status === "rejected") return -2;
+  return PROGRESS_STAGES.indexOf(status);
+}
+
+function MiniProgress({ status }: { status: ProposalStatus }) {
+  const idx = getProgressIndex(status);
+  if (status === "rejected") {
+    return (
+      <div className="flex items-center gap-0.5 mt-2">
+        {PROGRESS_STAGES.slice(0, 3).map((_, i) => (
+          <div key={i} className={`h-1 flex-1 rounded-full ${i < 3 ? "bg-red-300" : "bg-navy-100"}`} />
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center gap-0.5 mt-2">
+      {PROGRESS_STAGES.map((_, i) => (
+        <div key={i} className={`h-1 flex-1 rounded-full ${
+          i <= idx ? "bg-accent-500" : "bg-navy-100"
+        }`} />
+      ))}
+    </div>
+  );
+}
+
 export default function ProposalsPage() {
   const store = useStore();
   const [search, setSearch] = useState("");
@@ -88,7 +121,7 @@ export default function ProposalsPage() {
           </p>
         </div>
         <Link
-          href="/create-challenge"
+          href="/proposals/new"
           className="flex items-center gap-1.5 bg-accent-500 hover:bg-accent-600 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-all"
         >
           <Plus className="w-4 h-4" /> New Proposal
@@ -196,15 +229,16 @@ export default function ProposalsPage() {
                 {proposal.assessment && <ScoreBadge score={proposal.assessment.total_score} />}
               </div>
               <p className="text-xs text-navy-500 line-clamp-1">{proposal.description}</p>
-              <div className="flex items-center gap-3 mt-2 text-[0.65rem] text-navy-400">
+              <div className="flex items-center gap-3 mt-1.5 text-[0.65rem] text-navy-400">
                 <span>{proposal.submitter_org}</span>
                 <span className="w-1 h-1 rounded-full bg-navy-300" />
                 <span>{proposal.domain}</span>
                 <span className="w-1 h-1 rounded-full bg-navy-300" />
-                <span>{proposal.votes.length} votes</span>
+                <span>{proposal.votes.length} vote{proposal.votes.length !== 1 ? "s" : ""}</span>
                 <span className="w-1 h-1 rounded-full bg-navy-300" />
                 <span>{new Date(proposal.created_at).toLocaleDateString()}</span>
               </div>
+              <MiniProgress status={proposal.status} />
             </div>
 
             {/* Vote summary */}
