@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { User, Shield, Save, Check, Brain, Cpu, BookOpen, Database, ChevronRight } from "lucide-react";
+import {
+  User, Shield, Save, Check, Brain, Cpu, BookOpen, Database,
+  ChevronDown, ChevronRight, Sparkles, MessageSquare, Target,
+  Layers, ArrowRight, Info, Zap, Eye, Lock,
+} from "lucide-react";
 import { useStore } from "@/lib/store";
 
 const AVAILABLE_INTERESTS = [
@@ -25,106 +29,137 @@ const ROLES = [
   { value: "company_rep", label: "Company Representative" },
 ];
 
-// AI component data - summaries of the .md files in the project
+// --- AI Intelligence Data ---
+
 const AI_AGENTS = [
   {
+    id: "challenge-architect",
     name: "Challenge Architect",
-    type: "Agent",
-    icon: Shield,
-    status: "active",
+    icon: Target,
+    color: "bg-gold-500/10 text-gold-600",
+    badgeColor: "bg-gold-100 text-gold-700",
+    status: "active" as const,
+    purpose: "Turns operational needs into structured innovation challenges",
     description:
-      "Helps naval/defense officers transform operational needs into structured, AI-matchable challenge specifications. Uses operational analysis techniques to probe the root need, validate requirements, and ensure challenges are specific enough to attract relevant solutions while maintaining operational security.",
+      "Helps naval and defense officers translate real operational problems into structured, AI-matchable challenge specifications. It acts as an experienced capability analyst — probing for the root need, validating requirements, and ensuring challenges are specific enough to attract the right solutions.",
+    howItWorks: [
+      "Officer describes an operational problem in plain language",
+      "Agent asks targeted follow-up questions (max 5 rounds)",
+      "Extracts structured data: scenario, impact, constraints, requirements",
+      "Validates completeness against the Challenge Quality Gate",
+      "Outputs a formatted challenge ready for matchmaking",
+    ],
     capabilities: [
       "Operational scenario analysis",
       "Requirements extraction & validation",
-      "Challenge structuring with SNIF alignment",
+      "SNIF-aligned challenge structuring",
       "OPSEC-aware content filtering",
-      "Quality Gate gatekeeper for challenges",
+      "Challenge Quality Gate enforcement",
     ],
-    source: ".claude/agents/challenge-architect.md",
   },
   {
+    id: "onboarding-agent",
     name: "Onboarding Agent",
-    type: "Agent",
     icon: User,
-    status: "active",
+    color: "bg-accent-500/10 text-accent-600",
+    badgeColor: "bg-accent-100 text-accent-700",
+    status: "active" as const,
+    purpose: "Guides companies through registration with AI-ready profiles",
     description:
-      "Guides companies through the Naval Innovation Hub onboarding process. Validates submitted profiles against defense data standards, asks clarifying questions to fill gaps, and ensures all company data is structured, standardized, and AI-ready for matchmaking.",
+      "Walks companies through providing all the information needed for effective AI matchmaking. Validates each field against defense data standards, asks clarifying questions when data is incomplete, and ensures the final profile is structured and standardized.",
+    howItWorks: [
+      "Company starts a chat or fills the registration form",
+      "Agent asks about sector, capabilities, TRL, team, use cases",
+      "Validates responses against defense data standards",
+      "Identifies gaps and asks follow-up questions",
+      "Produces a quality-scored, AI-ready company profile",
+    ],
     capabilities: [
       "Company profile validation",
       "Defense data standards compliance",
       "Gap analysis & clarification",
       "AI-ready data structuring",
-      "Quality Gate gatekeeper for profiles",
+      "Profile Quality Gate enforcement",
     ],
-    source: ".claude/agents/onboarding-agent.md",
   },
 ];
 
 const AI_SKILLS = [
   {
+    id: "challenge-standards",
     name: "Challenge Standards",
-    type: "Skill",
-    icon: BookOpen,
-    version: "v1.0",
+    icon: Shield,
+    color: "bg-purple-50 text-purple-600",
+    purpose: "Defines what a well-structured challenge looks like",
     description:
-      "Defines the structured data schema for innovation challenges. Ensures all challenges have consistent fields: operational context, current workaround, impact assessment, environmental constraints, user profiles, functional & performance requirements, priority/timeline, and desired TRL level.",
+      "A structured data schema that defines the required fields for innovation challenges. Ensures every challenge has consistent, complete information that the AI matchmaking engine can process effectively.",
     fields: [
-      "Operational scenario & context",
-      "Current workaround description",
-      "Mission impact assessment",
-      "Environmental constraints",
-      "Functional & performance requirements",
-      "Priority level & timeline",
-      "Desired TRL range",
+      { name: "Operational scenario & context", why: "Helps AI understand the problem domain" },
+      { name: "Current workaround", why: "Shows what's lacking today" },
+      { name: "Mission impact", why: "Prioritizes by operational value" },
+      { name: "Environmental constraints", why: "Filters unsuitable solutions" },
+      { name: "Functional & performance requirements", why: "Enables precise matching" },
+      { name: "Priority & timeline", why: "Aligns with provider availability" },
+      { name: "Desired TRL range", why: "Matches technology maturity" },
     ],
-    source: ".claude/skills/challenge-standards.md",
   },
   {
-    name: "Data Standards",
-    type: "Skill",
+    id: "data-standards",
+    name: "Company Data Standards",
     icon: Database,
-    version: "v1.0",
+    color: "bg-teal-50 text-teal-600",
+    purpose: "Defines what a complete company profile looks like",
     description:
-      "Defines the company profile data schema for the innovation platform. Standardizes company information including sector classification, capability taxonomy, TRL levels, team composition, defense experience, certifications, and use cases — all optimized for AI matchmaking.",
+      "A standardized schema for company profiles that ensures all the data the AI needs for accurate matchmaking is captured. Covers everything from sector classification to specific capability taxonomies.",
     fields: [
-      "Company identification & sector",
-      "Capability & technology taxonomy",
-      "Technology Readiness Level (TRL 1-9)",
-      "Team size & composition",
-      "Defense/maritime experience",
-      "Certifications & clearances",
-      "Use cases & past work",
+      { name: "Company identification & sector", why: "Categorizes the company domain" },
+      { name: "Capability & technology taxonomy", why: "Core matching criteria" },
+      { name: "Technology Readiness Level (TRL 1-9)", why: "Maturity-based filtering" },
+      { name: "Team size & composition", why: "Capacity assessment" },
+      { name: "Defense/maritime experience", why: "Domain relevance scoring" },
+      { name: "Certifications & clearances", why: "Compliance pre-screening" },
+      { name: "Use cases & past work", why: "Evidence of delivery capability" },
     ],
-    source: ".claude/skills/data-standards.md",
   },
 ];
 
 const AGENT_MEMORY = [
   {
+    id: "challenge-mem",
     name: "Challenge Architect Memory",
     agent: "Challenge Architect",
-    status: "initialized",
+    status: "initialized" as const,
     entries: 0,
-    description: "Stores learned patterns from challenge creation sessions — common operational needs, recurring requirement patterns, and domain-specific knowledge accumulated over interactions.",
-    source: ".claude/agent-memory/challenge-architect/MEMORY.md",
+    description: "Learns from each challenge creation session — stores common operational needs, recurring requirement patterns, and domain-specific knowledge to improve future conversations.",
   },
   {
+    id: "onboarding-mem",
     name: "Onboarding Agent Memory",
     agent: "Onboarding Agent",
-    status: "initialized",
+    status: "initialized" as const,
     entries: 0,
-    description: "Stores learned patterns from company onboarding sessions — common company profiles, frequent capability combinations, and validation patterns accumulated over interactions.",
-    source: ".claude/agent-memory/onboarding-agent/MEMORY.md",
+    description: "Learns from each company registration — stores frequent capability combinations, common profile patterns, and validation insights to streamline future onboarding.",
   },
 ];
+
+function SectionHeader({ icon: Icon, title, subtitle }: { icon: typeof Brain; title: string; subtitle: string }) {
+  return (
+    <div className="mb-4 pb-3 border-b border-navy-200">
+      <h2 className="text-sm font-bold text-navy-900 flex items-center gap-2 uppercase tracking-wide">
+        <Icon className="w-4 h-4 text-accent-500" /> {title}
+      </h2>
+      <p className="text-xs text-navy-500 mt-1">{subtitle}</p>
+    </div>
+  );
+}
 
 export default function ProfilePage() {
   const store = useStore();
   const [profile, setProfile] = useState(store.userProfile);
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "intelligence">("profile");
-  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const [expandedAgent, setExpandedAgent] = useState<string | null>(null);
+  const [expandedSkill, setExpandedSkill] = useState<string | null>(null);
 
   const toggleInterest = (interest: string) => {
     setProfile((p) => ({
@@ -159,10 +194,6 @@ export default function ProfilePage() {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const toggleExpand = (id: string) => {
-    setExpandedCard(expandedCard === id ? null : id);
-  };
-
   return (
     <div className="max-w-3xl mx-auto">
       {/* Header */}
@@ -181,7 +212,7 @@ export default function ProfilePage() {
           <p className="text-sm text-navy-500">
             {activeTab === "profile"
               ? "Configure your matchmaking preferences"
-              : "AI agents, skills, and memory powering the platform"}
+              : "Understand how the AI agents, skills, and memory work together"}
           </p>
         </div>
       </div>
@@ -212,10 +243,9 @@ export default function ProfilePage() {
         </button>
       </div>
 
-      {/* Profile Tab */}
+      {/* ═══════════════ PROFILE TAB ═══════════════ */}
       {activeTab === "profile" && (
         <>
-          {/* Basic info */}
           <div className="card p-5 mb-4">
             <h2 className="text-sm font-bold text-navy-700 uppercase tracking-wide mb-4">Basic Information</h2>
             <div className="grid md:grid-cols-2 gap-4">
@@ -252,7 +282,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Interests */}
           <div className="card p-5 mb-4">
             <h2 className="text-sm font-bold text-navy-700 uppercase tracking-wide mb-2">Technology Interests</h2>
             <p className="text-xs text-navy-500 mb-3">Select topics to improve match relevance</p>
@@ -273,7 +302,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Preferred domains */}
           <div className="card p-5 mb-4">
             <h2 className="text-sm font-bold text-navy-700 uppercase tracking-wide mb-2">Preferred Domains</h2>
             <p className="text-xs text-navy-500 mb-3">Focus matching on specific operational domains</p>
@@ -294,7 +322,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Match preferences */}
           <div className="card p-5 mb-4">
             <h2 className="text-sm font-bold text-navy-700 uppercase tracking-wide mb-4">Match Preferences</h2>
             <div className="space-y-4">
@@ -352,7 +379,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Save */}
           <button
             onClick={handleSave}
             className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${
@@ -361,202 +387,269 @@ export default function ProfilePage() {
                 : "bg-accent-500 hover:bg-accent-600 text-white"
             }`}
           >
-            {saved ? (
-              <>
-                <Check className="w-4 h-4" /> Saved
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" /> Save Profile
-              </>
-            )}
+            {saved ? <><Check className="w-4 h-4" /> Saved</> : <><Save className="w-4 h-4" /> Save Profile</>}
           </button>
         </>
       )}
 
-      {/* Intelligence Tab */}
+      {/* ═══════════════ INTELLIGENCE TAB ═══════════════ */}
       {activeTab === "intelligence" && (
-        <>
-          {/* Summary stats */}
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <div className="card p-4 text-center">
-              <div className="text-2xl font-bold text-accent-600">2</div>
-              <div className="text-xs text-navy-500 font-medium">AI Agents</div>
-            </div>
-            <div className="card p-4 text-center">
-              <div className="text-2xl font-bold text-accent-600">2</div>
-              <div className="text-xs text-navy-500 font-medium">Skills</div>
-            </div>
-            <div className="card p-4 text-center">
-              <div className="text-2xl font-bold text-accent-600">2</div>
-              <div className="text-xs text-navy-500 font-medium">Memory Stores</div>
-            </div>
-          </div>
+        <div className="space-y-8">
 
-          {/* Agents section */}
-          <h2 className="text-sm font-bold text-navy-700 uppercase tracking-wide mb-3 flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-accent-500" />
-            AI Agents
-          </h2>
-          <div className="space-y-3 mb-6">
-            {AI_AGENTS.map((agent) => {
-              const Icon = agent.icon;
-              const isExpanded = expandedCard === agent.name;
-              return (
-                <div key={agent.name} className="card overflow-hidden">
-                  <button
-                    onClick={() => toggleExpand(agent.name)}
-                    className="w-full p-4 flex items-start gap-3 text-left hover:bg-navy-50/50 transition-colors"
-                  >
-                    <div className="w-9 h-9 rounded-lg bg-accent-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Icon className="w-4.5 h-4.5 text-accent-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-sm text-navy-900">{agent.name}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent-100 text-accent-700 font-semibold uppercase">
-                          {agent.type}
-                        </span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-success-100 text-success-700 font-semibold">
-                          {agent.status}
-                        </span>
-                      </div>
-                      <p className="text-xs text-navy-500 line-clamp-2">{agent.description}</p>
-                    </div>
-                    <ChevronRight
-                      className={`w-4 h-4 text-navy-400 flex-shrink-0 mt-1 transition-transform ${
-                        isExpanded ? "rotate-90" : ""
-                      }`}
-                    />
-                  </button>
-                  {isExpanded && (
-                    <div className="px-4 pb-4 pt-0 border-t border-navy-100">
-                      <div className="pt-3">
-                        <h4 className="text-xs font-bold text-navy-600 uppercase tracking-wide mb-2">Capabilities</h4>
-                        <ul className="space-y-1.5">
-                          {agent.capabilities.map((cap) => (
-                            <li key={cap} className="flex items-start gap-2 text-xs text-navy-600">
-                              <span className="w-1.5 h-1.5 rounded-full bg-accent-400 flex-shrink-0 mt-1" />
-                              {cap}
-                            </li>
-                          ))}
-                        </ul>
-                        <div className="mt-3 pt-3 border-t border-navy-100">
-                          <span className="text-[10px] text-navy-400 font-mono">{agent.source}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+          {/* How it works — visual overview */}
+          <section>
+            <SectionHeader
+              icon={Sparkles}
+              title="How the AI Works"
+              subtitle="Three layers work together to power intelligent matchmaking"
+            />
+            <div className="grid grid-cols-3 gap-3">
+              <div className="card-surface p-4 text-center relative">
+                <div className="w-10 h-10 rounded-full bg-accent-500/10 flex items-center justify-center mx-auto mb-2">
+                  <MessageSquare className="w-5 h-5 text-accent-600" />
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Skills section */}
-          <h2 className="text-sm font-bold text-navy-700 uppercase tracking-wide mb-3 flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-accent-500" />
-            Skills & Standards
-          </h2>
-          <div className="space-y-3 mb-6">
-            {AI_SKILLS.map((skill) => {
-              const Icon = skill.icon;
-              const isExpanded = expandedCard === skill.name;
-              return (
-                <div key={skill.name} className="card overflow-hidden">
-                  <button
-                    onClick={() => toggleExpand(skill.name)}
-                    className="w-full p-4 flex items-start gap-3 text-left hover:bg-navy-50/50 transition-colors"
-                  >
-                    <div className="w-9 h-9 rounded-lg bg-navy-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Icon className="w-4.5 h-4.5 text-navy-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-sm text-navy-900">{skill.name}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-navy-100 text-navy-600 font-semibold uppercase">
-                          {skill.type}
-                        </span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-navy-50 text-navy-500 font-mono">
-                          {skill.version}
-                        </span>
-                      </div>
-                      <p className="text-xs text-navy-500 line-clamp-2">{skill.description}</p>
-                    </div>
-                    <ChevronRight
-                      className={`w-4 h-4 text-navy-400 flex-shrink-0 mt-1 transition-transform ${
-                        isExpanded ? "rotate-90" : ""
-                      }`}
-                    />
-                  </button>
-                  {isExpanded && (
-                    <div className="px-4 pb-4 pt-0 border-t border-navy-100">
-                      <div className="pt-3">
-                        <h4 className="text-xs font-bold text-navy-600 uppercase tracking-wide mb-2">Schema Fields</h4>
-                        <ul className="space-y-1.5">
-                          {skill.fields.map((field) => (
-                            <li key={field} className="flex items-start gap-2 text-xs text-navy-600">
-                              <span className="w-1.5 h-1.5 rounded-full bg-navy-300 flex-shrink-0 mt-1" />
-                              {field}
-                            </li>
-                          ))}
-                        </ul>
-                        <div className="mt-3 pt-3 border-t border-navy-100">
-                          <span className="text-[10px] text-navy-400 font-mono">{skill.source}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Memory section */}
-          <h2 className="text-sm font-bold text-navy-700 uppercase tracking-wide mb-3 flex items-center gap-2">
-            <Database className="w-4 h-4 text-accent-500" />
-            Agent Memory
-          </h2>
-          <div className="space-y-3 mb-6">
-            {AGENT_MEMORY.map((mem) => (
-              <div key={mem.name} className="card p-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-warning-100 flex items-center justify-center flex-shrink-0">
-                    <Database className="w-4.5 h-4.5 text-warning-600" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-sm text-navy-900">{mem.name}</span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
-                        mem.entries > 0
-                          ? "bg-success-100 text-success-700"
-                          : "bg-warning-100 text-warning-700"
-                      }`}>
-                        {mem.entries > 0 ? `${mem.entries} entries` : "empty"}
-                      </span>
-                    </div>
-                    <p className="text-xs text-navy-500">{mem.description}</p>
-                    <div className="mt-2">
-                      <span className="text-[10px] text-navy-400 font-mono">{mem.source}</span>
-                    </div>
-                  </div>
+                <p className="text-xs font-bold text-navy-900 mb-1">Agents</p>
+                <p className="text-[0.65rem] text-navy-500 leading-relaxed">
+                  Conversational AI that guides users through complex tasks step by step
+                </p>
+                <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 z-10 hidden md:block">
+                  <ArrowRight className="w-3 h-3 text-navy-300" />
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Info box */}
-          <div className="card p-4 bg-accent-50 border-accent-200">
-            <div className="flex gap-3">
-              <Brain className="w-5 h-5 text-accent-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-sm font-semibold text-accent-900 mb-1">How Intelligence Works</h3>
-                <p className="text-xs text-accent-700 leading-relaxed">
-                  AI agents use specialized prompts and skills to guide conversations. The Challenge Architect helps officers structure operational needs into matchable challenges, while the Onboarding Agent ensures company profiles meet defense data standards. Both agents build memory over time to improve their responses.
+              <div className="card-surface p-4 text-center relative">
+                <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center mx-auto mb-2">
+                  <BookOpen className="w-5 h-5 text-purple-600" />
+                </div>
+                <p className="text-xs font-bold text-navy-900 mb-1">Skills</p>
+                <p className="text-[0.65rem] text-navy-500 leading-relaxed">
+                  Data standards that define what complete, matchable profiles look like
+                </p>
+                <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 z-10 hidden md:block">
+                  <ArrowRight className="w-3 h-3 text-navy-300" />
+                </div>
+              </div>
+              <div className="card-surface p-4 text-center">
+                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-2">
+                  <Database className="w-5 h-5 text-amber-600" />
+                </div>
+                <p className="text-xs font-bold text-navy-900 mb-1">Memory</p>
+                <p className="text-[0.65rem] text-navy-500 leading-relaxed">
+                  Learned patterns that improve agent accuracy over time
                 </p>
               </div>
             </div>
-          </div>
-        </>
+          </section>
+
+          {/* Agents */}
+          <section>
+            <SectionHeader
+              icon={Cpu}
+              title="AI Agents"
+              subtitle="Specialized conversational agents that guide users through key workflows"
+            />
+            <div className="space-y-4">
+              {AI_AGENTS.map((agent) => {
+                const Icon = agent.icon;
+                const isExpanded = expandedAgent === agent.id;
+                return (
+                  <div key={agent.id} className="card-surface overflow-hidden">
+                    <button
+                      onClick={() => setExpandedAgent(isExpanded ? null : agent.id)}
+                      className="w-full p-5 text-left hover:bg-navy-50/30 transition-colors"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${agent.color}`}>
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-bold text-sm text-navy-900">{agent.name}</span>
+                            <span className={`text-[0.6rem] px-2 py-0.5 rounded-full font-semibold ${agent.badgeColor}`}>
+                              Agent
+                            </span>
+                            <span className="flex items-center gap-1 text-[0.6rem] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Active
+                            </span>
+                          </div>
+                          <p className="text-sm text-navy-700 font-medium mb-1">{agent.purpose}</p>
+                          <p className="text-xs text-navy-500 leading-relaxed">{agent.description}</p>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-navy-400 shrink-0 mt-1 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                      </div>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="px-5 pb-5 border-t border-navy-100">
+                        <div className="grid md:grid-cols-2 gap-5 pt-4">
+                          {/* How it works */}
+                          <div>
+                            <h4 className="text-xs font-bold text-navy-800 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                              <Layers className="w-3.5 h-3.5" /> How It Works
+                            </h4>
+                            <ol className="space-y-2">
+                              {agent.howItWorks.map((step, i) => (
+                                <li key={i} className="flex items-start gap-2.5 text-xs text-navy-600">
+                                  <span className="w-5 h-5 rounded-full bg-accent-500/10 text-accent-600 flex items-center justify-center text-[0.6rem] font-bold shrink-0 mt-0.5">
+                                    {i + 1}
+                                  </span>
+                                  {step}
+                                </li>
+                              ))}
+                            </ol>
+                          </div>
+                          {/* Capabilities */}
+                          <div>
+                            <h4 className="text-xs font-bold text-navy-800 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                              <Zap className="w-3.5 h-3.5" /> Capabilities
+                            </h4>
+                            <ul className="space-y-2">
+                              {agent.capabilities.map((cap) => (
+                                <li key={cap} className="flex items-start gap-2 text-xs text-navy-600">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-accent-400 shrink-0 mt-1.5" />
+                                  {cap}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Skills */}
+          <section>
+            <SectionHeader
+              icon={BookOpen}
+              title="Data Skills & Standards"
+              subtitle="Structured schemas that define what complete, quality data looks like for AI matching"
+            />
+            <div className="space-y-4">
+              {AI_SKILLS.map((skill) => {
+                const Icon = skill.icon;
+                const isExpanded = expandedSkill === skill.id;
+                return (
+                  <div key={skill.id} className="card-surface overflow-hidden">
+                    <button
+                      onClick={() => setExpandedSkill(isExpanded ? null : skill.id)}
+                      className="w-full p-5 text-left hover:bg-navy-50/30 transition-colors"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${skill.color}`}>
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-bold text-sm text-navy-900">{skill.name}</span>
+                            <span className="text-[0.6rem] px-2 py-0.5 rounded-full bg-navy-100 text-navy-600 font-semibold">
+                              Standard
+                            </span>
+                          </div>
+                          <p className="text-sm text-navy-700 font-medium mb-1">{skill.purpose}</p>
+                          <p className="text-xs text-navy-500 leading-relaxed">{skill.description}</p>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-navy-400 shrink-0 mt-1 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                      </div>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="px-5 pb-5 border-t border-navy-100 pt-4">
+                        <h4 className="text-xs font-bold text-navy-800 uppercase tracking-wide mb-3">
+                          Schema Fields & Why They Matter
+                        </h4>
+                        <div className="space-y-2">
+                          {skill.fields.map((field) => (
+                            <div key={field.name} className="flex items-start gap-3 py-2 border-b border-navy-50 last:border-0">
+                              <span className="w-1.5 h-1.5 rounded-full bg-navy-300 shrink-0 mt-1.5" />
+                              <div className="flex-1">
+                                <span className="text-xs font-medium text-navy-800">{field.name}</span>
+                                <span className="text-xs text-navy-400 ml-2">— {field.why}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Memory */}
+          <section>
+            <SectionHeader
+              icon={Database}
+              title="Agent Memory"
+              subtitle="Agents learn from each interaction to improve accuracy over time"
+            />
+            <div className="space-y-3">
+              {AGENT_MEMORY.map((mem) => (
+                <div key={mem.id} className="card-surface p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                      <Database className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-bold text-sm text-navy-900">{mem.name}</span>
+                        <span className={`text-[0.6rem] px-2 py-0.5 rounded-full font-semibold ${
+                          mem.entries > 0
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-amber-100 text-amber-700"
+                        }`}>
+                          {mem.entries > 0 ? `${mem.entries} entries` : "Empty — learning"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-navy-500 leading-relaxed">{mem.description}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="flex items-start gap-3 p-4 rounded-lg bg-navy-50">
+                <Info className="w-4 h-4 text-navy-400 mt-0.5 shrink-0" />
+                <p className="text-xs text-navy-500 leading-relaxed">
+                  Memory builds automatically as agents interact with users.
+                  Each completed challenge creation or company onboarding session adds patterns that help the agent
+                  ask better questions and produce higher-quality outputs in future sessions.
+                  Memory is stored locally and never shared externally.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Transparency & Security note */}
+          <section>
+            <div className="card-surface p-5 border-l-4 border-accent-500">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-accent-500/10 flex items-center justify-center shrink-0">
+                  <Eye className="w-5 h-5 text-accent-600" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-navy-900 mb-1">Transparency & Security</h3>
+                  <p className="text-xs text-navy-600 leading-relaxed mb-3">
+                    All AI components on this page are fully visible and auditable. There are no hidden models or black-box decisions.
+                  </p>
+                  <div className="flex flex-wrap gap-3 text-xs">
+                    <span className="flex items-center gap-1.5 text-navy-500">
+                      <Lock className="w-3 h-3" /> All content kept at UNCLASSIFIED level
+                    </span>
+                    <span className="flex items-center gap-1.5 text-navy-500">
+                      <Eye className="w-3 h-3" /> Agent prompts are auditable
+                    </span>
+                    <span className="flex items-center gap-1.5 text-navy-500">
+                      <Shield className="w-3 h-3" /> OPSEC filtering built-in
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
       )}
     </div>
   );
