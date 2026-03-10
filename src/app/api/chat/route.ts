@@ -86,9 +86,8 @@ export async function POST(req: NextRequest) {
       : systemPrompt;
 
     const response = await client.messages.create({
-      model: "claude-opus-4-6",
+      model: "claude-sonnet-4-6",
       max_tokens: 2048,
-      thinking: { type: "adaptive" },
       system: fullSystemPrompt,
       messages: messages.map((m: { role: string; content: string }) => ({
         role: m.role as "user" | "assistant",

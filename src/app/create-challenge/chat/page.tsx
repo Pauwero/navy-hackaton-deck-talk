@@ -121,8 +121,8 @@ export default function ChallengeChatPage() {
         addAgentMsg(response, "text");
         const result = validateChallengeProfile(updated);
         if (result.passed) setPhase("review");
-      } catch {
-        addAgentMsg("AI service unavailable. Toggle off Claude AI to use the structured flow.", "text");
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Unknown error"; addAgentMsg(`AI temporarily unavailable (${msg}). Retrying or toggle off Claude AI for structured flow.`, "text");
       }
       setAiLoading(false);
       return;
