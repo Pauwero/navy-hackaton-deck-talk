@@ -29,7 +29,7 @@ const mainNav = [
   { href: "/companies", label: "Companies", icon: Building2 },
   { href: "/research", label: "Research", icon: FlaskConical },
   { href: "/matches", label: "Matches", icon: Zap },
-  { href: "/proposals", label: "Proposals", icon: ClipboardCheck },
+  { href: "/proposals", label: "Proposal Pipeline", icon: ClipboardCheck },
 ];
 
 const actionNav = [
