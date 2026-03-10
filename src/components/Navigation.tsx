@@ -10,6 +10,7 @@ import {
   Zap,
   ListMusic,
   LayoutDashboard,
+  UserPlus,
   Menu,
   X,
 } from "lucide-react";
@@ -22,6 +23,7 @@ const navItems = [
   { href: "/companies", label: "Companies", icon: Building2 },
   { href: "/research", label: "Research", icon: FlaskConical },
   { href: "/matches", label: "Matches", icon: Zap },
+  { href: "/onboarding", label: "Onboard", icon: UserPlus },
   { href: "/playlist", label: "Playlist", icon: ListMusic },
 ];
 

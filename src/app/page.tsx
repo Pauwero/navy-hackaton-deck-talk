@@ -47,7 +47,7 @@ export default function Home() {
             Discover Matches
           </Link>
           <Link
-            href="/companies/new"
+            href="/onboarding"
             className="flex items-center gap-2 bg-white hover:bg-navy-50 text-navy-700 border border-navy-200 px-6 py-3 rounded-full transition-all"
           >
             <Building2 className="w-5 h-5" />

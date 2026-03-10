@@ -137,3 +137,24 @@ export interface AudioPlayerState {
   currentDescription: string;
   currentType: "company" | "research" | "challenge";
 }
+
+// --- Onboarding types ---
+
+export interface OnboardingSession {
+  id: string;
+  status: "in_progress" | "review" | "approved" | "submitted";
+  input_method: "form" | "chat";
+  profile_data: Record<string, unknown>;
+  quality_score: number;
+  agent_messages: OnboardingMessage[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OnboardingMessage {
+  id: string;
+  role: "agent" | "user";
+  content: string;
+  type: "text" | "question" | "validation" | "approval" | "file-upload";
+  timestamp: string;
+}
