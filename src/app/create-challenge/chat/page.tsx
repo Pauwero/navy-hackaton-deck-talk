@@ -145,9 +145,6 @@ export default function ChallengeChatPage() {
     setTimeout(() => {
       const summary = generateDocumentExtractionSummary(extracted);
       addAgentMsg(summary, "text");
-      const result = validateChallengeProfile(updated);
-      const valMsg = generateChallengeValidationSummary(result);
-      addAgentMsg(valMsg, "validation");
 
       const allQuestions = generateChallengeQuestions(updated);
       // For demo: limit to max 2 questions
