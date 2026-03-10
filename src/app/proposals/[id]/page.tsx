@@ -445,7 +445,7 @@ export default function ProposalDetailPage() {
           {proposal.assessment ? (
             <div className="card-surface p-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-navy-900">Sniff Assessment Scorecard</h3>
+                <h3 className="text-sm font-bold text-navy-900">SNIF Assessment Scorecard</h3>
                 <div className={`text-lg font-bold ${
                   proposal.assessment.total_score >= 75 ? "text-emerald-600" :
                   proposal.assessment.total_score >= 65 ? "text-orange-600" : "text-red-600"
@@ -494,12 +494,20 @@ export default function ProposalDetailPage() {
                   <ClipboardCheck className="w-8 h-8 mx-auto text-navy-300 mb-2" />
                   <p className="text-sm text-navy-500 mb-3">No assessment yet</p>
                   {(proposal.status === "sniff_assessment" || proposal.status === "voting") && (
-                    <button
-                      onClick={() => setShowAssessmentForm(true)}
-                      className="btn-primary text-xs px-4 py-2"
-                    >
-                      Start Sniff Assessment
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/proposals/${proposal.id}/snif`}
+                        className="btn-primary text-xs px-4 py-2"
+                      >
+                        Start SNIF Procedure
+                      </Link>
+                      <button
+                        onClick={() => setShowAssessmentForm(true)}
+                        className="btn-outline text-xs px-4 py-2"
+                      >
+                        Quick Assessment
+                      </button>
+                    </div>
                   )}
                 </div>
               ) : (

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Target, ArrowLeft, Star, Clock, AlertCircle, CheckCircle2, Shield, Hand, Users, Building2, FlaskConical, Heart } from "lucide-react";
+import { Target, ArrowLeft, Star, Clock, AlertCircle, CheckCircle2, Shield, Hand, Users, Building2, FlaskConical, Heart, ClipboardCheck, ChevronRight, Plus } from "lucide-react";
 import { useStore } from "@/lib/store";
 import AudioSnippet from "@/components/AudioSnippet";
 import MatchCard from "@/components/MatchCard";
@@ -34,6 +34,7 @@ export default function ChallengeDetailPage() {
   const matches = store.getMatchesFor(challenge.id);
   const groupMatches = store.getGroupMatchesFor(challenge.id);
   const interests = store.getInterestsFor(challenge.id);
+  const proposals = store.getProposalsForChallenge(challenge.id);
 
   // Simulate current user as a company for demo
   const demoCompany = store.companies[0];
@@ -146,6 +147,79 @@ export default function ChallengeDetailPage() {
             </div>
           </div>
         )}
+
+        {/* Proposals section */}
+        <div className="mb-5">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-semibold text-navy-400 uppercase tracking-wide flex items-center gap-1.5">
+              <ClipboardCheck className="w-3.5 h-3.5" /> Proposals ({proposals.length})
+            </h3>
+            <Link
+              href={`/proposals/new?challenge=${challenge.id}`}
+              className="flex items-center gap-1 text-xs font-medium text-accent-500 hover:text-accent-600 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" /> Submit Proposal
+            </Link>
+          </div>
+          {proposals.length > 0 ? (
+            <div className="space-y-2">
+              {proposals.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/proposals/${p.id}`}
+                  className="flex items-center gap-3 bg-navy-50 rounded-xl p-3 hover:bg-navy-100 transition-colors group"
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                    p.status === "approved" || p.status === "enrolled" ? "bg-emerald-100" :
+                    p.status === "rejected" ? "bg-red-100" :
+                    p.status === "discussion" ? "bg-orange-100" :
+                    "bg-blue-100"
+                  }`}>
+                    <ClipboardCheck className={`w-4 h-4 ${
+                      p.status === "approved" || p.status === "enrolled" ? "text-emerald-600" :
+                      p.status === "rejected" ? "text-red-600" :
+                      p.status === "discussion" ? "text-orange-600" :
+                      "text-blue-600"
+                    }`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-navy-900 truncate group-hover:text-accent-500 transition-colors">{p.title}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-navy-400">{p.submitter_org}</span>
+                      <span className={`text-[0.6rem] font-medium px-1.5 py-0.5 rounded-full ${
+                        p.status === "approved" || p.status === "enrolled" ? "bg-emerald-100 text-emerald-700" :
+                        p.status === "rejected" ? "bg-red-100 text-red-700" :
+                        p.status === "discussion" ? "bg-orange-100 text-orange-700" :
+                        "bg-blue-100 text-blue-700"
+                      }`}>
+                        {p.status.replace(/_/g, " ")}
+                      </span>
+                      {p.assessment && (
+                        <span className={`text-[0.6rem] font-bold ${
+                          p.assessment.total_score >= 75 ? "text-emerald-600" :
+                          p.assessment.total_score >= 65 ? "text-orange-600" : "text-red-600"
+                        }`}>
+                          SNIF {p.assessment.total_score}%
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-navy-300 shrink-0" />
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-navy-50 rounded-xl p-4 text-center">
+              <p className="text-sm text-navy-400">No proposals yet</p>
+              <Link
+                href={`/proposals/new?challenge=${challenge.id}`}
+                className="text-xs text-accent-500 hover:text-accent-600 font-medium mt-1 inline-block"
+              >
+                Be the first to submit a proposal
+              </Link>
+            </div>
+          )}
+        </div>
 
         <div className="mb-5">
           <h3 className="text-xs font-semibold text-navy-400 uppercase tracking-wide mb-1.5">Description</h3>

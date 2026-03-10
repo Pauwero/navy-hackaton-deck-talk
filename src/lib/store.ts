@@ -401,6 +401,10 @@ export function useStore() {
       return _proposals.filter((p) => p.status === status);
     },
 
+    getProposalsForChallenge(challengeId: string) {
+      return _proposals.filter((p) => p.challenge_id === challengeId);
+    },
+
     getProposalStats() {
       const total = _proposals.length;
       const byStatus = _proposals.reduce((acc, p) => {

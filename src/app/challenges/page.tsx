@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Target, Plus, ArrowRight, AlertCircle, Search } from "lucide-react";
+import { Target, Plus, ArrowRight, AlertCircle, Search, ClipboardCheck } from "lucide-react";
 import { useStore } from "@/lib/store";
 
 const priorityStyles: Record<string, string> = {
@@ -20,7 +20,8 @@ const statusStyles: Record<string, string> = {
 };
 
 export default function ChallengesPage() {
-  const { challenges } = useStore();
+  const store = useStore();
+  const { challenges } = store;
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -79,6 +80,12 @@ export default function ChallengesPage() {
                 </span>
                 <span className="text-xs text-navy-400">{challenge.domain}</span>
                 <span className="text-xs text-navy-400">TRL {challenge.desired_trl} &middot; {challenge.timeline}</span>
+                {store.getProposalsForChallenge(challenge.id).length > 0 && (
+                  <span className="inline-flex items-center gap-0.5 text-xs text-accent-500 font-medium">
+                    <ClipboardCheck className="w-3 h-3" />
+                    {store.getProposalsForChallenge(challenge.id).length} proposal{store.getProposalsForChallenge(challenge.id).length !== 1 ? "s" : ""}
+                  </span>
+                )}
               </div>
             </div>
             <ArrowRight className="w-4 h-4 text-navy-300 group-hover:text-accent-500 shrink-0 mt-1 transition-colors" />
