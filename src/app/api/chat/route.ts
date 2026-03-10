@@ -1,17 +1,16 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-// Lazy-init to ensure env vars are loaded before client creation
-let _client: Anthropic | null = null;
+// Create client per request to ensure env vars are always fresh
 function getClient(): Anthropic {
-  if (!_client) {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      throw new Error("ANTHROPIC_API_KEY environment variable is not set. Add it to .env.local");
-    }
-    _client = new Anthropic({ apiKey });
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      "ANTHROPIC_API_KEY environment variable is not set. " +
+      "Add it to .env.local and restart the dev server (npm run dev)."
+    );
   }
-  return _client;
+  return new Anthropic({ apiKey });
 }
 
 const ONBOARDING_SYSTEM = `You are the Quality Gate Agent for Inno4Def 2.0 — a specialized assistant that helps companies register on a defense innovation platform. You ensure their profiles are structured, complete, and AI-ready for matchmaking.
