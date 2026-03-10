@@ -101,8 +101,8 @@ export default function Navigation() {
             </div>
             {!collapsed && (
               <div className="min-w-0">
-                <span className="font-bold text-sm text-white block leading-tight">Naval Innovation</span>
-                <span className="text-[0.65rem] text-navy-400 font-medium tracking-wide uppercase">Hub Platform</span>
+                <span className="font-bold text-sm text-white block leading-tight">Inno4Def</span>
+                <span className="text-[0.65rem] text-navy-400 font-medium tracking-wide uppercase">2.0 Platform</span>
               </div>
             )}
           </Link>
@@ -149,8 +149,8 @@ export default function Navigation() {
                 <Anchor className="w-3.5 h-3.5 text-accent-400" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-navy-200 truncate">RNLN Innovation</p>
-                <p className="text-[0.6rem] text-navy-500">v1.0 Demo</p>
+                <p className="text-xs font-semibold text-navy-200 truncate">Belgian Navy</p>
+                <p className="text-[0.6rem] text-navy-500">Inno4Def 2.0 Demo</p>
               </div>
             </div>
           </div>
@@ -163,7 +163,7 @@ export default function Navigation() {
           <div className="flex items-center justify-between h-14">
             <Link href="/" className="flex items-center gap-2">
               <Shield className="w-5 h-5 text-accent-400" />
-              <span className="font-bold text-sm text-white">Naval Innovation Hub</span>
+              <span className="font-bold text-sm text-white">Inno4Def 2.0</span>
             </Link>
             <div className="flex items-center gap-1">
               <NotificationBell />

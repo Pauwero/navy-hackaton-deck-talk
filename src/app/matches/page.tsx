@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { RefreshCw, Heart, Sparkles } from "lucide-react";
 import { useStore } from "@/lib/store";
 import MatchCard from "@/components/MatchCard";
@@ -11,6 +11,7 @@ export default function MatchesPage() {
   const store = useStore();
   const [filter, setFilter] = useState<MatchFilter>("all");
   const [isRunning, setIsRunning] = useState(false);
+  const [deduplicate, setDeduplicate] = useState(true);
 
   useEffect(() => {
     if (store.matches.length === 0) {
@@ -26,16 +27,32 @@ export default function MatchesPage() {
     }, 800);
   };
 
-  const filteredMatches = filter === "all"
-    ? store.matches
-    : store.matches.filter((m) => m.match_type === filter);
+  const filteredMatches = useMemo(() => {
+    let matches = filter === "all"
+      ? store.matches
+      : store.matches.filter((m) => m.match_type === filter);
 
-  const filterOptions: { value: MatchFilter; label: string }[] = [
-    { value: "all", label: "All Matches" },
-    { value: "challenge_to_company", label: "Challenge → Company" },
-    { value: "challenge_to_research", label: "Challenge → Research" },
-    { value: "company_to_company", label: "Company ↔ Company" },
-    { value: "company_to_research", label: "Company ↔ Research" },
+    if (deduplicate) {
+      // Keep only the best match per target entity
+      const bestPerTarget = new Map<string, typeof matches[0]>();
+      for (const m of matches) {
+        const existing = bestPerTarget.get(m.target_id);
+        if (!existing || m.score > existing.score) {
+          bestPerTarget.set(m.target_id, m);
+        }
+      }
+      matches = Array.from(bestPerTarget.values()).sort((a, b) => b.score - a.score);
+    }
+
+    return matches;
+  }, [store.matches, filter, deduplicate]);
+
+  const filterOptions: { value: MatchFilter; label: string; count: number }[] = [
+    { value: "all", label: "All Matches", count: store.matches.length },
+    { value: "challenge_to_company", label: "Challenge → Company", count: store.matches.filter((m) => m.match_type === "challenge_to_company").length },
+    { value: "challenge_to_research", label: "Challenge → Research", count: store.matches.filter((m) => m.match_type === "challenge_to_research").length },
+    { value: "company_to_company", label: "Company ↔ Company", count: store.matches.filter((m) => m.match_type === "company_to_company").length },
+    { value: "company_to_research", label: "Company ↔ Research", count: store.matches.filter((m) => m.match_type === "company_to_research").length },
   ];
 
   return (
@@ -49,18 +66,31 @@ export default function MatchesPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-navy-900">AI Matchmaking</h1>
-              <p className="text-sm text-navy-400">{filteredMatches.length} matches found</p>
+              <p className="text-sm text-navy-400">
+                {filteredMatches.length} {deduplicate ? "unique entities" : "matches"} found
+              </p>
             </div>
           </div>
         </div>
-        <button
-          onClick={handleRunMatchmaking}
-          disabled={isRunning}
-          className="flex items-center gap-1.5 bg-accent-500 hover:bg-accent-600 disabled:bg-navy-200 text-white disabled:text-navy-400 font-semibold px-5 py-2.5 rounded-full text-sm transition-all shadow-sm hover:shadow-md"
-        >
-          <RefreshCw className={`w-4 h-4 ${isRunning ? "animate-spin" : ""}`} />
-          {isRunning ? "Finding..." : "Find Matches"}
-        </button>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 text-xs text-navy-500 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={deduplicate}
+              onChange={(e) => setDeduplicate(e.target.checked)}
+              className="accent-accent-500 w-3.5 h-3.5"
+            />
+            Group by entity
+          </label>
+          <button
+            onClick={handleRunMatchmaking}
+            disabled={isRunning}
+            className="flex items-center gap-1.5 bg-accent-500 hover:bg-accent-600 disabled:bg-navy-200 text-white disabled:text-navy-400 font-semibold px-5 py-2.5 rounded-full text-sm transition-all shadow-sm hover:shadow-md"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRunning ? "animate-spin" : ""}`} />
+            {isRunning ? "Finding..." : "Find Matches"}
+          </button>
+        </div>
       </div>
 
       {/* Filter pills */}

@@ -511,7 +511,7 @@ export function extractProfileFromText(text: string): Partial<OnboardingProfile>
 // --- Agent Response Generator ---
 
 export function generateAgentGreeting(): string {
-  return `Welcome to the Naval Innovation Hub onboarding! I'm your Quality Gate Agent.
+  return `Welcome to the Inno4Def 2.0 onboarding! I'm your Quality Gate Agent.
 
 I'll help you create a defense-grade company profile optimized for AI matchmaking with naval challenges, research institutions, and potential collaborators.
 

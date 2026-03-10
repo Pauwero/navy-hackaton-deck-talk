@@ -460,7 +460,7 @@ export default function ChallengeFormPage() {
 
             <div>
               <label className={labelClass}>Sponsoring Unit / Command</label>
-              <input className={inputClass} value={profile.stakeholder_unit} onChange={(e) => updateField("stakeholder_unit", e.target.value)} placeholder="e.g., Mine Warfare Command, RNLN" />
+              <input className={inputClass} value={profile.stakeholder_unit} onChange={(e) => updateField("stakeholder_unit", e.target.value)} placeholder="e.g., Mine Warfare Command, Belgian Navy" />
             </div>
           </div>
         )}

@@ -293,7 +293,7 @@ export default function OnboardingReviewPage() {
     store.runMatchmaking();
 
     addAgentMessage(
-      `Your company **"${company.name}"** has been published on the Naval Innovation Hub! AI matchmaking is now running to find relevant challenges and collaborators.`,
+      `Your company **"${company.name}"** has been published on the Inno4Def 2.0! AI matchmaking is now running to find relevant challenges and collaborators.`,
       "approval"
     );
 

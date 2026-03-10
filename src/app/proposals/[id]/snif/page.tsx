@@ -37,7 +37,7 @@ const SNIF_STEPS: SnifStep[] = [
     color: "text-blue-600 bg-blue-100",
     weight: "30%",
     description:
-      "Does this proposal align with the strategic priorities and operational needs of the Royal Netherlands Navy? Consider the long-term vision, current capability gaps, and NATO commitments.",
+      "Does this proposal align with the strategic priorities and operational needs of the Belgian Navy? Consider the long-term vision, current capability gaps, and NATO commitments.",
     guiding_questions: [
       "Does this address a documented capability gap?",
       "Is it aligned with current defense white papers and innovation roadmaps?",

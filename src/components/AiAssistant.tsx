@@ -127,7 +127,7 @@ export default function AiAssistant({
             <p className="text-xs text-navy-500">
               {agentType === "analyze"
                 ? "Ask me to analyze proposals, assess challenges, or provide innovation insights."
-                : "Ask me anything about the Naval Innovation Hub platform."}
+                : "Ask me anything about the Inno4Def 2.0 platform."}
             </p>
           </div>
         )}

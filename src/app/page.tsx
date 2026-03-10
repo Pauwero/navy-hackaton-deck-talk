@@ -32,10 +32,10 @@ export default function Home() {
           </div>
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-navy-900 mb-3">
-          Naval Innovation Hub
+          Inno4Def 2.0
         </h1>
         <p className="text-lg text-navy-400 max-w-2xl mx-auto mb-8">
-          AI-powered matchmaking connecting naval organizations with researchers and
+          AI-powered matchmaking connecting defense organizations with researchers and
           tech companies — so the right people find each other faster.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
@@ -264,7 +264,7 @@ export default function Home() {
         <div className="card p-10 max-w-xl mx-auto bg-gradient-to-br from-accent-500 to-accent-600">
           <Users className="w-10 h-10 text-white/80 mx-auto mb-3" />
           <h2 className="text-2xl font-bold text-white mb-2">Ready to innovate?</h2>
-          <p className="text-white/70 mb-6">Join the platform and accelerate naval innovation together.</p>
+          <p className="text-white/70 mb-6">Join Inno4Def 2.0 and accelerate defense innovation together.</p>
           <Link
             href="/dashboard"
             className="inline-flex items-center gap-2 bg-white hover:bg-navy-50 text-accent-600 font-bold px-8 py-3 rounded-lg transition-colors shadow-md"

@@ -30,7 +30,7 @@ export default function OnboardingPage() {
         </div>
         <h1 className="text-3xl font-bold text-navy-900 mb-2">Company Onboarding</h1>
         <p className="text-navy-400 max-w-lg mx-auto">
-          Register your company on the Naval Innovation Hub. Our Quality Gate Agent will
+          Register your company on the Inno4Def 2.0. Our Quality Gate Agent will
           guide you through creating a defense-grade profile optimized for AI matchmaking.
         </p>
       </div>

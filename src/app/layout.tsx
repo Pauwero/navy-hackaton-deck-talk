@@ -5,8 +5,8 @@ import PersistentPlayer from "@/components/PersistentPlayer";
 import MainContent from "@/components/MainContent";
 
 export const metadata: Metadata = {
-  title: "Naval Innovation Hub",
-  description: "AI-powered matchmaking platform connecting naval organizations with researchers and tech companies",
+  title: "Inno4Def 2.0",
+  description: "AI-powered matchmaking platform connecting defense organizations with researchers and tech companies",
 };
 
 export default function RootLayout({

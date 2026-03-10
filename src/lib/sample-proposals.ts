@@ -25,7 +25,7 @@ export const sampleProposals: Proposal[] = [
       innovative: 88,
       total_score: 86,
       assessor_name: "Innovation Assessment Board",
-      assessor_notes: "Strong alignment with RNLN MCM modernization priorities. Technology demonstrated at TRL 7.",
+      assessor_notes: "Strong alignment with Belgian Navy MCM modernization priorities. Technology demonstrated at TRL 7.",
       created_at: "2026-01-15T10:00:00Z",
     },
     professor_review: {

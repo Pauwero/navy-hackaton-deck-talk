@@ -17,6 +17,9 @@ import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
+  Sparkles,
+  Star,
+  Zap,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import MatchCard from "@/components/MatchCard";
@@ -41,6 +44,20 @@ export default function DashboardPage() {
   const profileMatches = store.getProfileMatches();
   const { userProfile } = store;
   const proposalStats = store.getProposalStats();
+
+  // Separate matches by type for organized display
+  const matchesByType = useMemo(() => {
+    const challengeMatches = profileMatches.filter(
+      (m) => m.source_type === "challenge" || m.target_type === "challenge"
+    );
+    const collabMatches = profileMatches.filter(
+      (m) => m.match_type === "company_to_company" || m.match_type === "company_to_research"
+    );
+    return { challengeMatches, collabMatches };
+  }, [profileMatches]);
+
+  // Top 3 matches for the hero section
+  const topMatches = profileMatches.slice(0, 3);
 
   // Filtered companies/research for browse tabs
   const filteredCompanies = useMemo(() => {
@@ -158,6 +175,26 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Quick stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <div className="card p-4 text-center border-t-2 border-t-accent-500">
+          <p className="text-2xl font-bold text-accent-600">{profileMatches.length}</p>
+          <p className="text-xs text-navy-500 mt-1">Your Matches</p>
+        </div>
+        <div className="card p-4 text-center">
+          <p className="text-2xl font-bold text-navy-900">{store.challenges.filter((c) => c.status === "open").length}</p>
+          <p className="text-xs text-navy-500 mt-1">Open Challenges</p>
+        </div>
+        <div className="card p-4 text-center">
+          <p className="text-2xl font-bold text-navy-900">{store.companies.length}</p>
+          <p className="text-xs text-navy-500 mt-1">Companies</p>
+        </div>
+        <div className="card p-4 text-center">
+          <p className="text-2xl font-bold text-navy-900">{proposalStats.total}</p>
+          <p className="text-xs text-navy-500 mt-1">Proposals</p>
+        </div>
+      </div>
+
       {/* Search and filter bar */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
@@ -188,7 +225,7 @@ export default function DashboardPage() {
       {/* Tab navigation */}
       <div className="flex items-center gap-1 mb-6 border-b border-navy-100 overflow-x-auto">
         {[
-          { key: "matches" as const, label: "Your Matches", icon: TrendingUp, count: profileMatches.length },
+          { key: "matches" as const, label: "My Matches", icon: Sparkles, count: profileMatches.length },
           { key: "challenges" as const, label: "Challenges", icon: Target, count: filteredChallenges.length },
           { key: "proposals" as const, label: "Proposals", icon: ClipboardCheck, count: filteredProposals.length },
           { key: "companies" as const, label: "Companies", icon: Building2, count: filteredCompanies.length },
@@ -218,15 +255,46 @@ export default function DashboardPage() {
       {/* Tab content */}
       {activeTab === "matches" && (
         <div>
+          {/* Top matches hero */}
+          {topMatches.length > 0 && (
+            <div className="card p-5 mb-6 bg-gradient-to-r from-accent-500/5 to-purple-500/5 border border-accent-200">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-accent-500/10 flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-accent-500" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-navy-900">Top Matches for You</h2>
+                  <p className="text-[0.65rem] text-navy-400">Based on your interests and preferences</p>
+                </div>
+              </div>
+              <div className="grid md:grid-cols-3 gap-3">
+                {topMatches.map((match, i) => (
+                  <div key={match.id} className="relative">
+                    {i === 0 && (
+                      <div className="absolute -top-2 -left-2 z-10 w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center shadow-sm">
+                        <Star className="w-3 h-3 text-white fill-white" />
+                      </div>
+                    )}
+                    <MatchCard match={match} compact />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* All matches by category */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-accent-500" />
-              <h2 className="text-sm font-semibold text-navy-700">AI-recommended matches based on your profile</h2>
+              <h2 className="text-sm font-semibold text-navy-700">
+                All Matches ({profileMatches.length} unique entities)
+              </h2>
             </div>
             <Link href="/matches" className="text-accent-500 text-sm font-medium flex items-center gap-1 hover:gap-1.5 transition-all">
-              View All <ArrowRight className="w-3.5 h-3.5" />
+              Advanced View <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
+
           {profileMatches.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {profileMatches.map((match) => (
@@ -239,33 +307,13 @@ export default function DashboardPage() {
               <p className="text-navy-500 text-sm">Matches will appear here after matchmaking runs.</p>
             </div>
           )}
-
-          {/* Quick stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
-            <div className="card p-4 text-center">
-              <p className="text-2xl font-bold text-navy-900">{store.challenges.filter((c) => c.status === "open").length}</p>
-              <p className="text-xs text-navy-500 mt-1">Open Challenges</p>
-            </div>
-            <div className="card p-4 text-center">
-              <p className="text-2xl font-bold text-navy-900">{proposalStats.total}</p>
-              <p className="text-xs text-navy-500 mt-1">Proposals</p>
-            </div>
-            <div className="card p-4 text-center">
-              <p className="text-2xl font-bold text-navy-900">{store.companies.length}</p>
-              <p className="text-xs text-navy-500 mt-1">Companies</p>
-            </div>
-            <div className="card p-4 text-center">
-              <p className="text-2xl font-bold text-navy-900">{store.research.length}</p>
-              <p className="text-xs text-navy-500 mt-1">Research Projects</p>
-            </div>
-          </div>
         </div>
       )}
 
       {activeTab === "challenges" && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-navy-700">Active Naval Challenges</h2>
+            <h2 className="text-sm font-semibold text-navy-700">Active Challenges</h2>
             <Link href="/create-challenge" className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1">
               <Target className="w-3.5 h-3.5" /> New Proposal
             </Link>

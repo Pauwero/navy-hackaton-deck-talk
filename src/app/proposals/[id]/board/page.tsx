@@ -146,7 +146,7 @@ export default function BoardViewPage() {
 
         {/* Slide footer */}
         <div className="bg-navy-50 px-8 py-3 flex items-center justify-between border-t border-navy-200">
-          <span className="text-[0.6rem] text-navy-400 uppercase tracking-wide">Naval Innovation Hub — Confidential</span>
+          <span className="text-[0.6rem] text-navy-400 uppercase tracking-wide">Inno4Def 2.0 — Confidential</span>
           <span className="text-[0.6rem] text-navy-400">{new Date().toLocaleDateString()}</span>
         </div>
       </div>

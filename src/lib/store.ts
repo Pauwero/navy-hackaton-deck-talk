@@ -35,9 +35,9 @@ let _audioPlayer: AudioPlayerState = {
 let _proposals: Proposal[] = [...sampleProposals];
 let _userProfile: UserProfile = {
   id: "user-1",
-  name: "Commander A. de Vries",
+  name: "Commander K. Peeters",
   role: "naval_officer",
-  organization: "Royal Netherlands Navy",
+  organization: "Belgian Navy",
   interests: ["autonomous systems", "mine countermeasures", "cybersecurity", "underwater robotics"],
   preferred_domains: ["Mine Warfare", "Cyber Defense", "Autonomous Systems"],
   preferred_trl_range: [5, 9],
@@ -200,7 +200,7 @@ export function useStore() {
 
     getProfileMatches() {
       const profile = _userProfile;
-      return _matches
+      const filtered = _matches
         .filter((m) => {
           const targetType = m.target_type;
           const sourceType = m.source_type;
@@ -220,6 +220,21 @@ export function useStore() {
           if (trl && (trl < minTrl || trl > maxTrl)) return false;
           return true;
         })
+        .sort((a, b) => {
+          const scoreA = a.score + getInterestBoost(a, profile);
+          const scoreB = b.score + getInterestBoost(b, profile);
+          return scoreB - scoreA;
+        });
+
+      // Deduplicate: keep only the best match per target entity
+      const bestPerTarget = new Map<string, Match>();
+      for (const m of filtered) {
+        const existing = bestPerTarget.get(m.target_id);
+        if (!existing || (m.score + getInterestBoost(m, profile)) > (existing.score + getInterestBoost(existing, profile))) {
+          bestPerTarget.set(m.target_id, m);
+        }
+      }
+      return Array.from(bestPerTarget.values())
         .sort((a, b) => {
           const scoreA = a.score + getInterestBoost(a, profile);
           const scoreB = b.score + getInterestBoost(b, profile);

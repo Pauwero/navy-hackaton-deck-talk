@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Building2, FlaskConical, Target, Link2 } from "lucide-react";
+import { ArrowRight, Building2, FlaskConical, Target, Link2, Star } from "lucide-react";
 import type { Match } from "@/types";
 import { useStore } from "@/lib/store";
 
@@ -37,27 +37,69 @@ function getInitials(name: string): string {
   return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
 }
 
-export default function MatchCard({ match }: { match: Match }) {
+function getScoreLabel(score: number): { label: string; color: string; barColor: string } {
+  if (score >= 30) return { label: "Excellent", color: "text-emerald-600", barColor: "bg-emerald-500" };
+  if (score >= 20) return { label: "Strong", color: "text-blue-600", barColor: "bg-blue-500" };
+  if (score >= 15) return { label: "Good", color: "text-amber-600", barColor: "bg-amber-500" };
+  return { label: "Partial", color: "text-navy-400", barColor: "bg-navy-300" };
+}
+
+function getMatchTypeLabel(type: string): { label: string; color: string } {
+  switch (type) {
+    case "challenge_to_company": return { label: "Challenge Match", color: "text-orange-600 bg-orange-50" };
+    case "challenge_to_research": return { label: "Research Match", color: "text-purple-600 bg-purple-50" };
+    case "company_to_company": return { label: "Collaboration", color: "text-blue-600 bg-blue-50" };
+    case "company_to_research": return { label: "Tech Transfer", color: "text-emerald-600 bg-emerald-50" };
+    default: return { label: type.replace(/_/g, " "), color: "text-navy-500 bg-navy-50" };
+  }
+}
+
+export default function MatchCard({ match, compact }: { match: Match; compact?: boolean }) {
   const store = useStore();
   const sourceName = getEntityName(match.source_type, match.source_id, store);
   const targetName = getEntityName(match.target_type, match.target_id, store);
+  const scoreInfo = getScoreLabel(match.score);
+  const typeInfo = getMatchTypeLabel(match.match_type);
+
+  if (compact) {
+    return (
+      <Link
+        href={getEntityLink(match.target_type, match.target_id)}
+        className="card p-3 block group hover:border-accent-300 transition-all"
+      >
+        <div className="flex items-center gap-3">
+          <div className={`avatar w-9 h-9 text-xs shrink-0 ${getAvatarColor(match.target_id)}`}>
+            {getInitials(targetName)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm text-navy-900 group-hover:text-accent-500 transition-colors truncate">
+              {targetName}
+            </p>
+            <p className="text-[0.65rem] text-navy-400 truncate">{match.reasoning.split(".")[0]}</p>
+          </div>
+          <div className="text-right shrink-0">
+            <span className={`text-sm font-bold ${scoreInfo.color}`}>{match.score}%</span>
+          </div>
+        </div>
+      </Link>
+    );
+  }
 
   return (
-    <div className="card p-4">
+    <div className="card p-4 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[0.65rem] font-medium text-navy-400 bg-navy-50 px-2 py-0.5 rounded">
-          {match.match_type.replace(/_/g, " ")}
+        <span className={`text-[0.65rem] font-medium px-2 py-0.5 rounded ${typeInfo.color}`}>
+          {typeInfo.label}
         </span>
-        <span className={`text-xs font-bold px-2 py-0.5 rounded ${
-          match.score >= 30 ? "text-success-500 bg-success-500/10" :
-          match.score >= 15 ? "text-warning-500 bg-warning-500/10" :
-          "text-navy-400 bg-navy-50"
-        }`}>
-          {match.score}%
-        </span>
+        <div className="flex items-center gap-1">
+          {match.score >= 25 && <Star className="w-3 h-3 text-amber-400 fill-amber-400" />}
+          <span className={`text-xs font-bold ${scoreInfo.color}`}>
+            {match.score}%
+          </span>
+        </div>
       </div>
 
-      <div className="flex items-center gap-3 mb-2">
+      <div className="flex items-center gap-3 mb-3">
         <div className={`avatar w-10 h-10 text-xs ${getAvatarColor(match.target_id)}`}>
           {getInitials(targetName)}
         </div>
@@ -68,7 +110,22 @@ export default function MatchCard({ match }: { match: Match }) {
           >
             {targetName}
           </Link>
+          <span className="flex items-center gap-1 text-[0.65rem] text-navy-400">
+            <TypeIcon type={match.target_type} className="w-3 h-3" />
+            {match.target_type}
+          </span>
         </div>
+      </div>
+
+      {/* Score bar */}
+      <div className="mb-3">
+        <div className="w-full h-1.5 bg-navy-100 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all ${scoreInfo.barColor}`}
+            style={{ width: `${Math.min(match.score * 2, 100)}%` }}
+          />
+        </div>
+        <p className={`text-[0.6rem] mt-1 ${scoreInfo.color} font-medium`}>{scoreInfo.label} match</p>
       </div>
 
       <div className="flex items-start gap-1.5 mb-3">
@@ -79,7 +136,7 @@ export default function MatchCard({ match }: { match: Match }) {
       <div className="flex items-center justify-between pt-3 border-t border-navy-100">
         <span className="flex items-center gap-1 text-[0.65rem] text-navy-400">
           <TypeIcon type={match.source_type} className="w-3 h-3" />
-          <span className="truncate max-w-[100px]">{sourceName}</span>
+          <span className="truncate max-w-[120px]">{sourceName}</span>
         </span>
         <Link
           href={getEntityLink(match.target_type, match.target_id)}
