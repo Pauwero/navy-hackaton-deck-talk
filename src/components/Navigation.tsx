@@ -33,7 +33,7 @@ const mainNav = [
 ];
 
 const actionNav = [
-  { href: "/create-challenge", label: "New Challenge", icon: Crosshair },
+  { href: "/create-challenge", label: "New Proposal", icon: Crosshair },
   { href: "/onboarding", label: "Onboard Company", icon: UserPlus },
 ];
 

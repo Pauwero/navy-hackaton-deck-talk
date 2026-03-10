@@ -267,7 +267,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-navy-700">Active Naval Challenges</h2>
             <Link href="/create-challenge" className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1">
-              <Target className="w-3.5 h-3.5" /> New Challenge
+              <Target className="w-3.5 h-3.5" /> New Proposal
             </Link>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
